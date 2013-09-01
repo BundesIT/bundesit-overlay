@@ -1,0 +1,78 @@
+#!/sbin/runscript
+# Copyright 1999-2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+# donwnload from bgo #264979
+# more fix - slepnoga <spamslepnoga@inbox.ru>
+
+
+## DEFINES
+TC_NAME=${TS_NAME:-traffic_cop}
+TM_NAME=${TS_NAME:-traffic_manager}
+TS_NAME=${TS_NAME:-traffic_server}
+TC_DAEMON=${TC_DAEMON:-/usr/bin/traffic_cop}
+TC_DAEMON_ARGS=${TC_DAEMON_ARGS:-}
+TM_DAEMON=${TM_DAEMON:-/usr/bin/traffic_manager}
+TM_DAEMON_ARGS=${TM_DAEMON_ARGS:-}
+TS_DAEMON=${TS_DAEMON:-/usr/bin/traffic_server}
+TS_DAEMON_ARGS=${TS_DAEMON_ARGS:-}
+TC_PIDFILE=${TC_PIDFILE:-/var/run/trafficserver/cop.lock}
+TM_PIDFILE=${TM_PIDFILE:-/var/run/trafficserver/manager.lock}
+TS_PIDFILE=${TS_PIDFILE:-/var/run/trafficserver/server.lock}
+# number of times to retry check on pid lock file
+PIDFILE_CHECK_RETRIES=${PIDFILE_CHECK_RETRIES:-30}
+# stdout file of executable
+STDOUTLOG=${STDOUTLOG:-/var/log/trafficserver/traffic_server.stdout}
+# stderr file of executable
+STDERRLOG=${STDERRLOG:-/var/log/trafficserver/traffic_server.stderr}
+
+
+
+depend() {
+	need net
+}
+
+start() {
+	einfo "Set 'ulimit -n' to S:10240 H:102400"
+	ulimit -Hn 102400 > /dev/null 2>&1 && ulimit -Sn 10240 > /dev/null 2>&1
+	eend $?
+	ebegin "Starting trafficserver"
+	eval start-stop-daemon --start --background --quiet --pidfile $TC_PIDFILE --exec $TC_DAEMON --test > /dev/null \
+		|| eend 1
+	eval start-stop-daemon --start --background --quiet --pidfile $TC_PIDFILE --exec $TC_DAEMON -- $TC_DAEMON_ARGS \
+		|| eend 2
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping trafficserver"
+
+	# Return
+	#   0 if daemon has been stopped
+	#   1 if daemon was already stopped
+	#   2 if daemon could not be stopped
+	#   other if a failure occurred
+	start-stop-daemon --stop --quiet --retry=QUIT/30/KILL/5 --pidfile $TC_PIDFILE --name $TC_NAME
+	RETVAL="$?"
+	test "$RETVAL" = 2 && eend 2
+	# Wait for children to finish too if this is a daemon that forks
+	# and if the daemon is only ever run from this initscript.
+	# If the above conditions are not satisfied then add some other code
+	# that waits for the process to drop all resources that could be
+	# needed by services started subsequently.  A last resort is to
+	# sleep for some time.
+	start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec $TC_DAEMON
+	test "$?" = 2 && eend 2
+	# Need to stop the TM and TS also
+	start-stop-daemon --stop --quiet --retry=QUIT/30/KILL/5 --pidfile $TM_PIDFILE --name $TM_NAME
+	test "$?" = 2 && eend 2
+	start-stop-daemon --stop --quiet --retry=QUIT/30/KILL/5 --pidfile $TS_PIDFILE --name $TS_NAME
+	test "$?" = 2 && eend 2
+	# Many daemons don't delete their pidfiles when they exit.
+	rm -f $TC_PIDFILE
+	rm -f $TM_PIDFILE
+	rm -f $TS_PIDFILE
+	eend $RETVAL
+}
+
