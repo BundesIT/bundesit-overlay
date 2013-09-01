@@ -15,7 +15,7 @@ SRC_URI="mirror://apache/${PN}/${P}.tar.bz2"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="static-libs clang experimental-plugins"
+IUSE="clang experimental-plugins"
 
 DEPEND="dev-lang/tcl
     clang? ( sys-devel/clang:0/3.3 )"
@@ -53,7 +53,7 @@ src_configure() {
         --disable-libev
         --without-profiler
         --enable-eventfd
-		$(use_enable experimental-plugins))
+	$(use_enable experimental-plugins))
     autotools-utils_src_configure
 }
 
@@ -63,9 +63,9 @@ src_install() {
     [ -z `ls -A ${D}/var/lib/`] && rmdir ${D}/var/lib
 
     touch ${D}/var/log/trafficserver/.keep
-	touch ${D}/var/cache/trafficserver/.keep
-	touch ${D}/run/trafficserver/.keep
+    touch ${D}/var/cache/trafficserver/.keep
+    touch ${D}/run/trafficserver/.keep
 
-	newinitd ${FILESDIR}/tc.init trafficserver
-	newconfd ${FILESDIR}/tc.confd trafficserver
+    newinitd ${FILESDIR}/tc.init trafficserver
+    newconfd ${FILESDIR}/tc.confd trafficserver
 }
