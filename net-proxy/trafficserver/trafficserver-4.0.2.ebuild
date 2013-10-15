@@ -10,7 +10,7 @@ inherit autotools autotools-utils eutils
 
 DESCRIPTION="Apache Traffic Server™ is fast, scalable and extensible caching proxy server"
 HOMEPAGE="http://trafficserver.apache.org"
-SRC_URI="http://archive.apache.org/dist/${PN}/${P}.tar.bz2"
+SRC_URI="mirror://apache/${PN}/${P}.tar.bz2"
 
 LICENSE="Apache-2.0"
 SLOT="0"
