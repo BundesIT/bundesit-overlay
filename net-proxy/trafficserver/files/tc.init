@@ -5,7 +5,7 @@
 
 # donwnload from bgo #264979
 # more fix - slepnoga <spamslepnoga@inbox.ru>
-
+# even more improvements by tbe <th.berger@it.piratenpartei.de>
 
 ## DEFINES
 TC_NAME=${TS_NAME:-traffic_cop}
@@ -34,6 +34,7 @@ depend() {
 }
 
 start() {
+        [ -d /run/trafficserver ] || ( ( mkdir /run/trafficserver && chown tc: /run/trafficserver ) || eend 1 )
 	einfo "Set 'ulimit -n' to S:10240 H:102400"
 	ulimit -Hn 102400 > /dev/null 2>&1 && ulimit -Sn 10240 > /dev/null 2>&1
 	eend $?
@@ -62,7 +63,7 @@ stop() {
 	# that waits for the process to drop all resources that could be
 	# needed by services started subsequently.  A last resort is to
 	# sleep for some time.
-	start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec $TC_DAEMON
+	start-stop-daemon --stop --quiet --retry=0/30/KILL/5 --exec $TC_DAEMON
 	test "$?" = 2 && eend 2
 	# Need to stop the TM and TS also
 	start-stop-daemon --stop --quiet --retry=QUIT/30/KILL/5 --pidfile $TM_PIDFILE --name $TM_NAME
