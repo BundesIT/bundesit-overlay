@@ -1,0 +1,52 @@
+--- usr/sbin/xe-linux-distribution	2013-11-28 15:57:05.000000000 +0100
++++ usr/sbin/xe-linux-distribution.gentoo	2013-12-21 21:02:16.123846316 +0100
+@@ -254,6 +254,25 @@
+     write_to_output "${distro}" "${major}" "${minor}" "${description}"
+ }
+ 
++identify_gentoo()
++{
++    gentoo_release="$1"
++    if [ ! -e "${gentoo_release}" ] ; then
++            return 1
++    fi
++    distro="gentoo"
++    eval $(cat ${gentoo_release} | awk '{ print "release=" $5 }' )
++    if [ -z "${release}" ] ; then
++            return 1
++    fi
++    eval $(echo $release | awk -F. -- '{ print "major=" $1 ; print "minor=" $2 }' )
++    if [ -z "${major}" -o -z "$minor" ] ; then
++            return 1
++    fi
++    write_to_output "${distro}" "${major}" "${minor}" "${distro}"
++}
++
++
+ if [ $# -eq 1 ] ; then
+     exec 1>"$1"
+ fi
+@@ -265,6 +284,7 @@
+     identify_sles   /etc/SuSE-release   && exit 0
+     identify_lsb    lsb_release         && exit 0
+     identify_debian /etc/debian_version && exit 0
++    identify_gentoo /etc/gentoo-release && exit 0
+ 
+     if [ $# -eq 1 ] ; then
+ 	rm -f "$1"
+
+--- usr/sbin/xe-update-guest-attrs	2013-12-21 21:18:33.516739270 +0100
++++ usr/sbin/xe-update-guest-attrs.gentoo	2013-12-21 21:19:02.830739270 +0100
+@@ -177,9 +177,9 @@
+ #           collisions:0 txqueuelen:0 
+ #           RX bytes:3604609 (3.4 MiB)  TX bytes:3604609 (3.4 MiB)
+ 
+-ifs=`/sbin/ifconfig | sed -n -e 's/^\([a-z0-9][^ ]\+\).*/name \1/p' \
+-    -e 's/.*inet addr:\('$IPADDR_RE'\) .*/ipv4 \1/p' \
+-    -e 's+.*inet6 addr: \('$IPADDR6_RE'\)/.*+ipv6 \1+p' | \
++ifs=`ip addr show | sed -n -e 's/^[[:digit:]]*: \([a-z0-9]*\): .*/name \1 /gp;' \
++    -e 's/^[[:space:]]\{4\}inet \('${IPADDR_RE}'\)\/.*/ipv4 \1 /gp;' \
++    -e 's/^[[:space:]]\{4\}inet6 \('${IPADDR6_RE}'\)\/.*/ipv6 \1 /gp;' | \
+ while read tag value; do
+     case "${tag}" in
+         name)
