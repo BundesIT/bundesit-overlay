@@ -1,0 +1,144 @@
+diff -uarN trafficserver-4.1.2.orig/build/crypto.m4 trafficserver-4.1.2/build/crypto.m4
+--- trafficserver-4.1.2.orig/build/crypto.m4	2013-12-05 23:07:48.000000000 +0100
++++ trafficserver-4.1.2/build/crypto.m4	2013-12-23 23:52:17.025503995 +0100
+@@ -111,6 +111,19 @@
+ 
+ ])
+ 
++AC_DEFUN([TS_CHECK_CRYPTO_EC_KEYS], [
++  _eckeys_saved_LIBS=$LIBS
++  TS_ADDTO(LIBS, [$LIBSSL])
++  AC_CHECK_HEADERS(openssl/ec.h)
++  AC_CHECK_FUNCS(EC_KEY_new_by_curve_name, [enable_tls_eckey=yes], [enable_tls_eckey=no])
++  LIBS=$_eckeys_saved_LIBS
++
++  AC_MSG_CHECKING(whether EC keys are supported)
++  AC_MSG_RESULT([$enable_tls_eckey])
++  TS_ARG_ENABLE_VAR([use], [tls-eckey])
++  AC_SUBST(use_tls_eckey)
++])
++
+ AC_DEFUN([TS_CHECK_CRYPTO_NEXTPROTONEG], [
+   enable_tls_npn=yes
+   _npn_saved_LIBS=$LIBS
+diff -uarN trafficserver-4.1.2.orig/configure.ac trafficserver-4.1.2/configure.ac
+--- trafficserver-4.1.2.orig/configure.ac	2013-12-05 23:07:48.000000000 +0100
++++ trafficserver-4.1.2/configure.ac	2013-12-23 23:52:17.026503995 +0100
+@@ -1088,6 +1088,10 @@
+ TS_CHECK_CRYPTO_NEXTPROTONEG
+ 
+ #
++# Check for EC key support.
++TS_CHECK_CRYPTO_EC_KEYS
++
++#
+ # Check for ServerNameIndication TLS extension support.
+ TS_CHECK_CRYPTO_SNI
+ 
+diff -uarN trafficserver-4.1.2.orig/iocore/net/SSLConfig.cc trafficserver-4.1.2/iocore/net/SSLConfig.cc
+--- trafficserver-4.1.2.orig/iocore/net/SSLConfig.cc	2013-12-05 23:07:48.000000000 +0100
++++ trafficserver-4.1.2/iocore/net/SSLConfig.cc	2013-12-23 23:50:18.832503995 +0100
+@@ -162,6 +162,24 @@
+ #endif
+   }
+ 
++  // Enable ephemeral DH parameters for the case where we use a cipher with DH forward security.
++#ifdef SSL_OP_SINGLE_DH_USE
++  ssl_ctx_options |= SSL_OP_SINGLE_DH_USE;
++#endif
++
++#ifdef SSL_OP_SINGLE_ECDH_USE
++  ssl_ctx_options |= SSL_OP_SINGLE_ECDH_USE;
++#endif
++
++  // Enable all SSL compatibility workarounds.
++  ssl_ctx_options |= SSL_OP_ALL;
++
++  // According to OpenSSL source, applications must enable this if they support the Server Name extension. Since
++  // we do, then we ought to enable this. Httpd also enables this unconditionally.
++#ifdef SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
++  ssl_ctx_options |= SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
++#endif
++
+   REC_ReadConfigStringAlloc(serverCertChainFilename, "proxy.config.ssl.server.cert_chain.filename");
+   REC_ReadConfigStringAlloc(serverCertRelativePath, "proxy.config.ssl.server.cert.path");
+   set_paths_helper(serverCertRelativePath, NULL, &serverCertPathOnly, NULL);
+diff -uarN trafficserver-4.1.2.orig/iocore/net/SSLNetVConnection.cc trafficserver-4.1.2/iocore/net/SSLNetVConnection.cc
+--- trafficserver-4.1.2.orig/iocore/net/SSLNetVConnection.cc	2013-12-05 23:07:48.000000000 +0100
++++ trafficserver-4.1.2/iocore/net/SSLNetVConnection.cc	2013-12-23 23:51:25.440503995 +0100
+@@ -448,6 +448,7 @@
+   sslHandShakeComplete = false;
+   sslClientConnection = false;
+   npnSet = NULL;
++  npnEndpoint= NULL;
+ 
+   if (from_accept_thread) {
+     sslNetVCAllocator.free(this);  
+diff -uarN trafficserver-4.1.2.orig/iocore/net/SSLUtils.cc trafficserver-4.1.2/iocore/net/SSLUtils.cc
+--- trafficserver-4.1.2.orig/iocore/net/SSLUtils.cc	2013-12-05 23:07:48.000000000 +0100
++++ trafficserver-4.1.2/iocore/net/SSLUtils.cc	2013-12-23 23:52:31.379503995 +0100
+@@ -34,6 +34,10 @@
+ #include <openssl/ts.h>
+ #endif
+ 
++#if HAVE_OPENSSL_EC_H
++#include <openssl/ec.h>
++#endif
++
+ // ssl_multicert.config field names:
+ #define SSL_IP_TAG            "dest_ip"
+ #define SSL_CERT_TAG          "ssl_cert_name"
+@@ -178,13 +182,32 @@
+     SSL_CTX_set_tlsext_servername_arg(ctx, lookup);
+   }
+ #else
+-  (void)ctx;
+   (void)lookup;
+ #endif /* TS_USE_TLS_SNI */
+ 
+   return ctx;
+ }
+ 
++static SSL_CTX *
++ssl_context_enable_ecdh(SSL_CTX * ctx)
++{
++#if TS_USE_TLS_ECKEY
++
++#if defined(SSL_CTRL_SET_ECDH_AUTO)
++  SSL_CTX_set_ecdh_auto(ctx, 1);
++#elif defined(HAVE_EC_KEY_NEW_BY_CURVE_NAME) && defined(NID_X9_62_prime256v1)
++  EC_KEY * ecdh = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
++
++  if (ecdh) {
++    SSL_CTX_set_tmp_ecdh(ctx, ecdh);
++    EC_KEY_free(ecdh);
++  }
++#endif
++#endif
++
++  return ctx;
++}
++
+ void
+ SSLInitializeLibrary()
+ {
+@@ -401,7 +424,7 @@
+     }
+   }
+ 
+-  return ctx;
++  return ssl_context_enable_ecdh(ctx);
+ 
+ fail:
+   SSL_CTX_free(ctx);
+diff -uarN trafficserver-4.1.2.orig/lib/ts/ink_config.h.in trafficserver-4.1.2/lib/ts/ink_config.h.in
+--- trafficserver-4.1.2.orig/lib/ts/ink_config.h.in	2013-12-05 23:07:48.000000000 +0100
++++ trafficserver-4.1.2/lib/ts/ink_config.h.in	2013-12-23 23:52:17.027503995 +0100
+@@ -67,6 +67,7 @@
+ #define TS_USE_RECLAIMABLE_FREELIST    @use_reclaimable_freelist@
+ #define TS_USE_TLS_NPN                 @use_tls_npn@
+ #define TS_USE_TLS_SNI                 @use_tls_sni@
++#define TS_USE_TLS_ECKEY               @use_tls_eckey@
+ #define TS_USE_LINUX_NATIVE_AIO        @use_linux_native_aio@
+ #define TS_USE_COP_DEBUG               @use_cop_debug@
+ #define TS_USE_INTERIM_CACHE           @has_interim_cache@
