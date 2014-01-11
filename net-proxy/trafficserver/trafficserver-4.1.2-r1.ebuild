@@ -6,7 +6,7 @@
 
 EAPI=5
 
-inherit autotools autotools-utils eutils
+inherit autotools autotools-utils eutils user
 
 DESCRIPTION="Apache Traffic Server™ is fast, scalable and extensible caching proxy server"
 HOMEPAGE="http://trafficserver.apache.org"
