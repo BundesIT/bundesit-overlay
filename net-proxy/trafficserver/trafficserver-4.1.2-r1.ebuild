@@ -18,7 +18,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="clang experimental-plugins"
 
 DEPEND="dev-lang/tcl
-    clang? ( sys-devel/clang:0/3.3 )"
+    clang? ( >=sys-devel/clang-3.3 )"
 RDEPEND="dev-lang/tcl"
 
 group_user_check() {
