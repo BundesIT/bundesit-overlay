@@ -1,0 +1,57 @@
+diff -aur trafficserver-4.2.0.orig/build/ax_with_curses.m4 trafficserver-4.2.0/build/ax_with_curses.m4
+--- trafficserver-4.2.0.orig/build/ax_with_curses.m4	2014-03-19 11:02:38.533022732 +0100
++++ trafficserver-4.2.0/build/ax_with_curses.m4	2014-03-19 11:03:45.010022966 +0100
+@@ -203,7 +203,7 @@
+     # Test for NcursesW
+ 
+     AS_IF([test "x$CURSES_LIB" = x && test "x$with_ncursesw" != xno], [
+-        LIBS="$ax_saved_LIBS -lncursesw"
++        LIBS="$ax_saved_LIBS -lncursesw -ltinfow"
+ 
+         AC_CACHE_CHECK([for NcursesW wide-character library], [ax_cv_ncursesw], [
+             AC_LINK_IFELSE([AC_LANG_CALL([], [initscr])],
+@@ -216,7 +216,7 @@
+         AS_IF([test "x$ax_cv_ncursesw" = xyes], [
+             ax_cv_curses=yes
+             ax_cv_curses_which=ncursesw
+-            CURSES_LIB="-lncursesw"
++            CURSES_LIB="-lncursesw -ltinfow"
+             AC_DEFINE([HAVE_NCURSESW], [1], [Define to 1 if the NcursesW library is present])
+             AC_DEFINE([HAVE_CURSES],   [1], [Define to 1 if a SysV or X/Open compatible Curses library is present])
+ 
+@@ -322,7 +322,7 @@
+     # Test for Ncurses
+ 
+     AS_IF([test "x$CURSES_LIB" = x && test "x$with_ncurses" != xno && test "x$ax_cv_curses_which" = xno], [
+-        LIBS="$ax_saved_LIBS -lncurses"
++        LIBS="$ax_saved_LIBS -lncurses -ltinfo"
+ 
+         AC_CACHE_CHECK([for Ncurses library], [ax_cv_ncurses], [
+             AC_LINK_IFELSE([AC_LANG_CALL([], [initscr])],
+@@ -335,7 +335,7 @@
+         AS_IF([test "x$ax_cv_ncurses" = xyes], [
+             ax_cv_curses=yes
+             ax_cv_curses_which=ncurses
+-            CURSES_LIB="-lncurses"
++            CURSES_LIB="-lncurses -ltinfo"
+             AC_DEFINE([HAVE_NCURSES], [1], [Define to 1 if the Ncurses library is present])
+             AC_DEFINE([HAVE_CURSES],  [1], [Define to 1 if a SysV or X/Open compatible Curses library is present])
+ 
+@@ -397,7 +397,7 @@
+         AS_IF([test "x$CURSES_LIB" != x], [
+             LIBS="$ax_saved_LIBS $CURSES_LIB"
+         ], [
+-            LIBS="$ax_saved_LIBS -lcurses"
++            LIBS="$ax_saved_LIBS -lcurses -ltinfo"
+         ])
+ 
+         AC_CACHE_CHECK([for Curses library], [ax_cv_plaincurses], [
+@@ -409,7 +409,7 @@
+             ax_cv_curses=yes
+             ax_cv_curses_which=plaincurses
+             AS_IF([test "x$CURSES_LIB" = x], [
+-                CURSES_LIB="-lcurses"
++                CURSES_LIB="-lcurses -ltinfo"
+             ])
+             AC_DEFINE([HAVE_CURSES], [1], [Define to 1 if a SysV or X/Open compatible Curses library is present])
+ 
