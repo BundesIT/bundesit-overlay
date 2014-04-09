@@ -18,4 +18,4 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 DEPEND="dev-python/simplejson dev-python/setuptools"
-RDEPEND="${DEPEND}
+RDEPEND="${DEPEND}"
