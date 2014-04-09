@@ -1,4 +1,5 @@
-net-proxy
-sys-cluster
-app-emulation
 app-admin
+app-emulation
+net-proxy
+sys-apps
+sys-cluster

@@ -1,0 +1,33 @@
+diff -aru logstash-1.4.0.orig/bin/logstash logstash-1.4.0/bin/logstash
+--- logstash-1.4.0.orig/bin/logstash	2014-04-09 14:22:19.707066676 +0200
++++ logstash-1.4.0/bin/logstash	2014-04-09 14:35:57.206069555 +0200
+@@ -19,7 +19,13 @@
+ LS_HEAP_SIZE="${LS_HEAP_SIZE:=500m}"
+ 
+ unset CDPATH
+-basedir=$(cd `dirname $0`/..; pwd)
++SOURCE=$0
++while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
++  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
++  SOURCE="$(readlink "$SOURCE")"
++  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
++done
++basedir="$( cd -P "$( dirname "$SOURCE" )/.." && pwd )" 
+ . ${basedir}/bin/logstash.lib.sh
+ 
+ setup
+diff -aru logstash-1.4.0.orig/bin/logstash.lib.sh logstash-1.4.0/bin/logstash.lib.sh
+--- logstash-1.4.0.orig/bin/logstash.lib.sh	2014-04-09 14:22:19.707066676 +0200
++++ logstash-1.4.0/bin/logstash.lib.sh	2014-04-09 14:36:20.183069636 +0200
+@@ -1,4 +1,10 @@
+-basedir=$(cd `dirname $0`/..; pwd)
++SOURCE=$0
++while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
++  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
++  SOURCE="$(readlink "$SOURCE")"
++  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
++done
++basedir="$( cd -P "$( dirname "$SOURCE" )/.." && pwd )" 
+ 
+ setup_ruby() {
+   export RUBYLIB="$basedir/lib"
