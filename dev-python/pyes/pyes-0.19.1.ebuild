@@ -17,4 +17,5 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="dev-python/simplejson"
+DEPEND="dev-python/simplejson dev-python/setuptools"
+RDEPEND="${DEPEND}
