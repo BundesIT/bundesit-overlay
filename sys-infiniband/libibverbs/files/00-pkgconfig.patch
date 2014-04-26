@@ -1,0 +1,56 @@
+diff -rupN libibverbs-1.1.7.orig/Makefile.am libibverbs-1.1.7/Makefile.am
+--- libibverbs-1.1.7.orig/Makefile.am   2014-04-26 20:56:32.000000000 +0200
++++ libibverbs-1.1.7/Makefile.am        2014-04-26 20:58:26.000000000 +0200
+@@ -1,5 +1,8 @@
+ AM_CPPFLAGS = -I$(srcdir)/include
+ 
++pkgconfigdir = @pkgconfigdir@
++pkgconfig_DATA = ibverbs.pc
++
+ lib_LTLIBRARIES = src/libibverbs.la
+ 
+ ACLOCAL_AMFLAGS = -I config
+diff -rupN libibverbs-1.1.7.orig/configure.ac libibverbs-1.1.7/configure.ac
+--- libibverbs-1.1.7.orig/configure.ac  2014-04-26 20:56:32.000000000 +0200
++++ libibverbs-1.1.7/configure.ac       2014-04-26 20:58:08.000000000 +0200
+@@ -27,6 +27,17 @@ else
+         CPPFLAGS="$CPPFLAGS -I$with_valgrind/include"
+     fi
+ fi
++dnl Additional arguments (and substitutions)
++dnl Allow the pkg-config directory to be set
++AC_ARG_WITH(pkgconfigdir,
++        AC_HELP_STRING([--with-pkgconfigdir],
++        [Use the specified pkgconfig dir (default is libdir/pkgconfig)]),
++        [pkgconfigdir=${withval}],
++        [pkgconfigdir='${libdir}/pkgconfig'])
++
++AC_SUBST([pkgconfigdir])
++AC_MSG_NOTICE([pkgconfig directory is ${pkgconfigdir}])
++
+ 
+ dnl Checks for libraries
+ AC_CHECK_LIB(dl, dlsym, [],
+@@ -90,5 +101,5 @@ if test $ac_cv_asm_symver_support = yes;
+     AC_DEFINE([HAVE_SYMVER_SUPPORT], 1, [assembler has .symver support])
+ fi
+ 
+-AC_CONFIG_FILES([Makefile libibverbs.spec])
++AC_CONFIG_FILES([Makefile libibverbs.spec ibverbs.pc:ibverbs.pc.in])
+ AC_OUTPUT
+diff -rupN libibverbs-1.1.7.orig/ibverbs.pc.in libibverbs-1.1.7/ibverbs.pc.in
+--- libibverbs-1.1.7.orig/ibverbs.pc.in 1970-01-01 01:00:00.000000000 +0100
++++ libibverbs-1.1.7/ibverbs.pc.in      2014-04-26 20:59:10.000000000 +0200
+@@ -0,0 +1,11 @@
++prefix=@prefix@
++exec_prefix=@exec_prefix@
++libdir=@libdir@
++includedir=@includedir@
++
++Name: @PACKAGE_NAME@
++Version: @PACKAGE_VERSION@
++Description: @PACKAGE_STRING@
++Requires:
++Libs: -L${libdir} -libverbs
++Cflags: -I${includedir}
+
