@@ -9,7 +9,7 @@ OFED_RC="1"
 OFED_RC_VER="1"
 OFED_SUFFIX="1"
 
-inherit eutils openib
+inherit autotools eutils openib
 
 DESCRIPTION="OpenIB userspace RDMA CM library"
 KEYWORDS="~amd64 ~x86 ~amd64-linux"
