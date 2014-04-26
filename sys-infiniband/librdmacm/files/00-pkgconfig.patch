@@ -1,0 +1,56 @@
+diff -rupN librdmacm-1.0.18.orig/Makefile.am librdmacm-1.0.18/Makefile.am
+--- librdmacm-1.0.18.orig/Makefile.am   2014-04-26 19:56:37.000000000 +0200
++++ librdmacm-1.0.18/Makefile.am        2014-04-26 19:58:58.000000000 +0200
+@@ -1,5 +1,8 @@
+ AM_CPPFLAGS = -I$(srcdir)/include
+ 
++pkgconfigdir = @pkgconfigdir@
++pkgconfig_DATA = rdmacm.pc
++
+ rslibdir = $(libdir)/rsocket
+ lib_LTLIBRARIES = src/librdmacm.la
+ rslib_LTLIBRARIES = src/librspreload.la
+diff -rupN librdmacm-1.0.18.orig/configure.ac librdmacm-1.0.18/configure.ac
+--- librdmacm-1.0.18.orig/configure.ac  2014-04-26 19:56:37.000000000 +0200
++++ librdmacm-1.0.18/configure.ac       2014-04-26 19:57:45.000000000 +0200
+@@ -29,6 +29,17 @@ AC_ARG_ENABLE(libcheck, [  --disable-lib
+         fi
+ ])
+ 
++dnl Additional arguments (and substitutions)
++dnl Allow the pkg-config directory to be set
++AC_ARG_WITH(pkgconfigdir,
++        AC_HELP_STRING([--with-pkgconfigdir],
++        [Use the specified pkgconfig dir (default is libdir/pkgconfig)]),
++        [pkgconfigdir=${withval}],
++        [pkgconfigdir='${libdir}/pkgconfig'])
++
++AC_SUBST([pkgconfigdir])
++AC_MSG_NOTICE([pkgconfig directory is ${pkgconfigdir}])
++
+ dnl Checks for programs
+ AC_PROG_CC
+ 
+@@ -108,5 +119,5 @@ if test "x$rdmadir" = "x"; then
+    AC_SUBST(rdmadir, rdma)
+ fi
+ 
+-AC_CONFIG_FILES([Makefile librdmacm.spec])
++AC_CONFIG_FILES([Makefile librdmacm.spec rdmacm.pc:rdmacm.pc.in])
+ AC_OUTPUT
+diff -rupN librdmacm-1.0.18.orig/rdmacm.pc.in librdmacm-1.0.18/rdmacm.pc.in
+--- librdmacm-1.0.18.orig/rdmacm.pc.in  1970-01-01 01:00:00.000000000 +0100
++++ librdmacm-1.0.18/rdmacm.pc.in       2014-04-26 19:59:18.000000000 +0200
+@@ -0,0 +1,11 @@
++prefix=@prefix@
++exec_prefix=@exec_prefix@
++libdir=@libdir@
++includedir=@includedir@
++
++Name: @PACKAGE_NAME@
++Version: @PACKAGE_VERSION@
++Description: @PACKAGE_STRING@
++Requires:
++Libs: -L${libdir} -lrdmacm
++Cflags: -I${includedir}
+
