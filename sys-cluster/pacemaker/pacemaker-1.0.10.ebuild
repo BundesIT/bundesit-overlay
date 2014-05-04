@@ -72,3 +72,13 @@ src_configure() {
 		$(use_enable static-libs static) \
 		${myopts}
 }
+
+src_install() {
+        base_src_install
+
+        keepdir /var/lib/heartbeat/crm/
+        keepdir /var/lib/pengine/
+		keepdir /var/lib/heartbeat/fencing
+		keepdir /var/lib/heartbeat/lrm
+}
+
