@@ -78,7 +78,7 @@ src_install() {
 
         keepdir /var/lib/heartbeat/crm/
         keepdir /var/lib/pengine/
-		keepdir /var/lib/heartbeat/fencing
-		keepdir /var/lib/heartbeat/lrm
+        keepdir /var/lib/heartbeat/fencing
+        keepdir /var/lib/heartbeat/lrm
 }
 
