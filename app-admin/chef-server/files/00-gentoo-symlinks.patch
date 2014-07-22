@@ -1,0 +1,15 @@
+--- opt/chef-server/embedded/cookbooks/runit/definitions/runit_service.rb.orig 2014-07-22 21:37:36.029808964 +0200
++++ opt/chef-server/embedded/cookbooks/runit/definitions/runit_service.rb      2014-07-22 21:38:12.875808964 +0200
+@@ -152,10 +152,8 @@
+       end
+     end
+ 
+-    unless node[:platform] == "gentoo"
+-      link service_dir_name do
+-        to sv_dir_name
+-      end
++    link service_dir_name do
++      to sv_dir_name
+     end
+ 
+     ruby_block "supervise_#{params[:name]}_sleep" do

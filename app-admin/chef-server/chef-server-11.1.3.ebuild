@@ -25,6 +25,10 @@ src_unpack() {
 
 S=${WORKDIR}
 
+src_prepare() {
+  epatch ${FILESDIR}/00-gentoo-symlinks.patch || die
+}
+
 src_configure() { :; }
 src_compile()   { :; }
 
