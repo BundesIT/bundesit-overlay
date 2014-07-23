@@ -57,7 +57,11 @@ ruby_add_rdepend "
 	>=dev-ruby/rest-client-1.0.4
 
 	>=dev-ruby/yajl-ruby-1.1
+
+	dev-ruby/rdoc
 	"
+
+RUBY_PATCHES="00-paludis-support.patch"
 
 all_ruby_install() {
 	all_fakegem_install
@@ -74,6 +78,7 @@ all_ruby_install() {
 	doman distro/common/man/man1/*.1
 	doman distro/common/man/man8/*.8
 }
+
 
 pkg_setup() {
 	enewgroup chef
