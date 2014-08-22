@@ -1,0 +1,14 @@
+app-admin/chef ~amd64
+app-admin/chef-zero ~amd64
+dev-ruby/mixlib-config:2 ~amd64
+dev-ruby/mixlib-cli ~amd64
+dev-ruby/mixlib-log ~amd64
+dev-ruby/mixlib-shellout ~amd64
+dev-ruby/ohai:7.2 ~amd64
+dev-ruby/ffi-yajl:0 ~amd64
+dev-ruby/net-ssh:2.6 ~amd64
+dev-ruby/net-ssh-multi:2 ~amd64
+dev-ruby/highline:0 ~amd64
+dev-ruby/erubis ~amd64
+dev-ruby/pry ~amd64
+dev-ruby/plist ~amd64
