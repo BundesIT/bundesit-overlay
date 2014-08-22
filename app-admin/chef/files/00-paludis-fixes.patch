@@ -1,0 +1,78 @@
+diff -ur chef-11.14.6.orig/lib/chef/provider/package/paludis.rb chef-11.14.6/lib/chef/provider/package/paludis.rb
+--- chef-11.14.6.orig/lib/chef/provider/package/paludis.rb	2014-08-22 23:31:29.819724845 +0200
++++ chef-11.14.6/lib/chef/provider/package/paludis.rb	2014-08-22 23:31:56.186724373 +0200
+@@ -37,7 +37,7 @@
+           installed = false
+           re = Regexp.new('(.*)[[:blank:]](.*)[[:blank:]](.*)$')
+ 
+-          shell_out!("cave -L warning print-ids -m \"*/#{@new_resource.package_name.split('/').last}\" -f \"%c/%p %v %r\n\"").stdout.each_line do |line|
++          shell_out!("cave -L warning print-ids -M none -m \"*/#{@new_resource.package_name.split('/').last}\" -f \"%c/%p %v %r\n\"").stdout.each_line do |line|
+             res = re.match(line)
+             unless res.nil?
+               case res[3]
+@@ -62,7 +62,7 @@
+           else
+             pkg = "#{@new_resource.package_name}"
+           end
+-          shell_out!("cave -L warning resolve -x#{expand_options(@new_resource.options)} \"#{pkg}\"")
++          shell_out!("cave -L warning resolve -x#{expand_options(@new_resource.options)} \"#{pkg}\"",:timeout => @new_resource.timeout)
+         end
+ 
+         def upgrade_package(name, version)
+diff -ur chef-11.14.6.orig/lib/chef/resource/paludis_package.rb chef-11.14.6/lib/chef/resource/paludis_package.rb
+--- chef-11.14.6.orig/lib/chef/resource/paludis_package.rb	2014-08-22 23:31:29.824724845 +0200
++++ chef-11.14.6/lib/chef/resource/paludis_package.rb	2014-08-22 23:31:56.187724373 +0200
+@@ -27,6 +27,7 @@
+         @resource_name = :paludis_package
+         @provider = Chef::Provider::Package::Paludis
+         @allowed_actions = [ :install, :remove, :upgrade ]
++        @timeout = 3600
+       end
+     end
+   end
+diff -ur chef-11.14.6.orig/spec/unit/provider/package/paludis_spec.rb chef-11.14.6/spec/unit/provider/package/paludis_spec.rb
+--- chef-11.14.6.orig/spec/unit/provider/package/paludis_spec.rb	2014-08-22 23:31:29.889724844 +0200
++++ chef-11.14.6/spec/unit/provider/package/paludis_spec.rb	2014-08-22 23:31:56.186724373 +0200
+@@ -59,7 +59,7 @@
+     end
+ 
+     it "should run pkg info with the package name" do
+-      @provider.should_receive(:shell_out!).with("cave -L warning print-ids -m \"*/#{@new_resource.package_name.split('/').last}\" -f \"%c/%p %v %r\n\"").and_return(@shell_out)
++      @provider.should_receive(:shell_out!).with("cave -L warning print-ids -M none -m \"*/#{@new_resource.package_name.split('/').last}\" -f \"%c/%p %v %r\n\"").and_return(@shell_out)
+       @provider.load_current_resource
+     end
+ 
+@@ -86,13 +86,13 @@
+ 
+   context "when installing a package" do
+     it "should run pkg install with the package name and version" do
+-      @provider.should_receive(:shell_out!).with("cave -L warning resolve -x \"=net/ntp-4.2.6_p5-r2\"")
++      @provider.should_receive(:shell_out!).with("cave -L warning resolve -x \"=net/ntp-4.2.6_p5-r2\"", {:timeout=>@new_resource.timeout})
+       @provider.install_package("net/ntp", "4.2.6_p5-r2")
+     end
+ 
+ 
+     it "should run pkg install with the package name and version and options if specified" do
+-      @provider.should_receive(:shell_out!).with("cave -L warning resolve -x --preserve-world \"=net/ntp-4.2.6_p5-r2\"")
++      @provider.should_receive(:shell_out!).with("cave -L warning resolve -x --preserve-world \"=net/ntp-4.2.6_p5-r2\"", {:timeout=>@new_resource.timeout})
+       @new_resource.stub(:options).and_return("--preserve-world")
+       @provider.install_package("net/ntp", "4.2.6_p5-r2")
+     end
+@@ -102,7 +102,7 @@
+ sys-process/lsof 4.87 arbor
+ sys-process/lsof 4.87 x86_64
+ PKG_STATUS
+-      @provider.should_receive(:shell_out!).with("cave -L warning resolve -x \"=sys-process/lsof-4.87\"")
++      @provider.should_receive(:shell_out!).with("cave -L warning resolve -x \"=sys-process/lsof-4.87\"", {:timeout=>@new_resource.timeout})
+       @provider.install_package("sys-process/lsof", "4.87")
+     end
+ 
+@@ -120,7 +120,7 @@
+ 
+   context "when upgrading a package" do
+     it "should run pkg install with the package name and version" do
+-      @provider.should_receive(:shell_out!).with("cave -L warning resolve -x \"=net/ntp-4.2.6_p5-r2\"")
++      @provider.should_receive(:shell_out!).with("cave -L warning resolve -x \"=net/ntp-4.2.6_p5-r2\"", {:timeout=>@new_resource.timeout})
+       @provider.upgrade_package("net/ntp", "4.2.6_p5-r2")
+     end
+   end
