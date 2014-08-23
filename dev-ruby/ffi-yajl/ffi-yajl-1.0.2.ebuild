@@ -22,6 +22,8 @@ ruby_add_rdepend "
 	>=dev-ruby/ffi-1.5
 	>=dev-ruby/libyajl2-1.0"
 
+RDEPEND=">=dev-libs/yajl-2.0"
+
 each_ruby_configure() {
     ${RUBY} -Cext/ffi_yajl/ext/encoder extconf.rb || die
     ${RUBY} -Cext/ffi_yajl/ext/parser extconf.rb || die
