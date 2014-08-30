@@ -18,7 +18,7 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~x86-fbsd"
 IUSE=""
-ruby_add_rdepend "
+ruby_add_bdepend "
 	>=dev-ruby/ffi-1.5
 	>=dev-ruby/libyajl2-1.0"
 
