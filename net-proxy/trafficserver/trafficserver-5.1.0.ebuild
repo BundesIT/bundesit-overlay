@@ -6,25 +6,26 @@
 
 EAPI=5
 
-inherit autotools autotools-utils eutils
+inherit autotools autotools-utils eutils user
 
 DESCRIPTION="Apache Traffic Server™ is fast, scalable and extensible caching proxy server"
 HOMEPAGE="http://trafficserver.apache.org"
-SRC_URI="http://archive.apache.org/dist/${PN}/${P}.tar.bz2"
+SRC_URI="mirror://apache/${PN}/${P}.tar.bz2"
 
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="clang experimental-plugins"
+IUSE="traffictop clang experimental-plugins"
 
 DEPEND="dev-lang/tcl
-    clang? ( sys-devel/clang:0/3.3 )"
-RDEPEND="dev-lang/tcl"
+    clang? ( >=sys-devel/clang-3.3 )"
+RDEPEND="dev-lang/tcl
+    traffictop? ( sys-libs/ncurses )"
 
 group_user_check() {
     einfo "Checking for tc group ..."
     enewgroup tc
-    einfo "Checking for tc  group ..."
+    einfo "Checking for tc user ..."
     enewuser tc -1 -1 /dev/null tc
 }
 
@@ -33,7 +34,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch ${FILESDIR}/00-runtimedir.patch
+    if use traffictop ; then epatch "${FILESDIR}/00-ncurses.patch" ; fi
     eautoreconf
 }
 
@@ -53,8 +54,14 @@ src_configure() {
         --disable-libev
         --without-profiler
         --enable-eventfd
-	$(use_enable experimental-plugins))
+    	--disable-hwloc
+    $(use_with traffictop ncurses)
+    $(use_enable experimental-plugins))
     autotools-utils_src_configure
+}
+
+src_test() {
+    autotools-utils_src_test
 }
 
 src_install() {
@@ -62,10 +69,25 @@ src_install() {
 
     [ -z `ls -A ${D}/var/lib/`] && rmdir ${D}/var/lib
 
-    touch ${D}/var/log/trafficserver/.keep
-    touch ${D}/var/cache/trafficserver/.keep
-    touch ${D}/run/trafficserver/.keep
+    keepdir /var/log/trafficserver
+    fowners tc:tc /var/log/trafficserver
+
+    keepdir /var/cache/trafficserver
+    
+    keepdir /run/trafficserver
+    fowners tc:tc /run/trafficserver
+
+    fowners tc:tc /etc/trafficserver
+
+    keepdir /etc/trafficserver/snapshots
+    fowners tc:tc /etc/trafficserver/snapshots
 
     newinitd ${FILESDIR}/tc.init trafficserver
     newconfd ${FILESDIR}/tc.confd trafficserver
+}
+
+pkg_postinst() {
+    elog "Remeber to update your configuration file."
+    elog "A full list of changes could be found on here:"
+    elog "  https://cwiki.apache.org/confluence/display/TS/What%27s+new+in+v5.0.x"
 }
