@@ -1,0 +1,461 @@
+--- lib/atscppapi/src/Makefile.am.orig	2014-11-07 13:45:44.458742241 +0100
++++ lib/atscppapi/src/Makefile.am	2014-11-07 13:47:43.226740114 +0100
+@@ -20,7 +20,8 @@
+   -D__STDC_FORMAT_MACROS=1 \
+   -I$(top_srcdir)/proxy/api \
+   -I$(top_builddir)/lib/ts \
+-  -I$(top_srcdir)/lib/ts
++  -I$(top_srcdir)/lib/ts \
++  -I$(top_srcdir)/lib/atscppapi/src/include
+ 
+ AM_CXXFLAGS = -Iinclude $(TS_PLUGIN_CPPFLAGS)
+ 
+@@ -55,7 +55,7 @@
+                           InterceptPlugin.cc
+ 
+ library_includedir=$(includedir)/atscppapi
+-base_include_folder = include/atscppapi/
++base_include_folder = $(top_srcdir)/lib/atscppapi/src/include/atscppapi
+ 
+ library_include_HEADERS = $(base_include_folder)/GlobalPlugin.h \
+ 			  $(base_include_folder)/Plugin.h \
+--- lib/atscppapi/examples/internal_transaction_handling/Makefile.am.orig	2014-11-07 14:10:03.277716116 +0100
++++ lib/atscppapi/examples/internal_transaction_handling/Makefile.am	2014-11-07 14:10:03.278716116 +0100
+@@ -20,7 +20,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = InternalTransactionHandling.la
+ InternalTransactionHandling_la_SOURCES = InternalTransactionHandling.cc
+-InternalTransactionHandling_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++InternalTransactionHandling_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/internal_transaction_handling/Makefile.in.orig	2014-11-07 14:10:03.279716116 +0100
++++ lib/atscppapi/examples/internal_transaction_handling/Makefile.in	2014-11-07 14:10:03.281716116 +0100
+@@ -575,7 +575,7 @@
+ target = InternalTransactionHandling.so
+ pkglib_LTLIBRARIES = InternalTransactionHandling.la
+ InternalTransactionHandling_la_SOURCES = InternalTransactionHandling.cc
+-InternalTransactionHandling_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++InternalTransactionHandling_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/helloworld/Makefile.am.orig	2014-11-07 14:10:03.282716116 +0100
++++ lib/atscppapi/examples/helloworld/Makefile.am	2014-11-07 14:10:03.283716116 +0100
+@@ -20,7 +20,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = HelloWorldPlugin.la
+ HelloWorldPlugin_la_SOURCES = HelloWorldPlugin.cc
+-HelloWorldPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++HelloWorldPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/helloworld/Makefile.in.orig	2014-11-07 14:10:03.285716116 +0100
++++ lib/atscppapi/examples/helloworld/Makefile.in	2014-11-07 14:10:03.286716116 +0100
+@@ -573,7 +573,7 @@
+ target = HelloWorldPlugin.so
+ pkglib_LTLIBRARIES = HelloWorldPlugin.la
+ HelloWorldPlugin_la_SOURCES = HelloWorldPlugin.cc
+-HelloWorldPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++HelloWorldPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/transactionhook/Makefile.am.orig	2014-11-07 14:10:03.288716116 +0100
++++ lib/atscppapi/examples/transactionhook/Makefile.am	2014-11-07 14:10:03.289716116 +0100
+@@ -21,7 +21,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = TransactionHookPlugin.la
+ TransactionHookPlugin_la_SOURCES = TransactionHookPlugin.cc
+-TransactionHookPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++TransactionHookPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/transactionhook/Makefile.in.orig	2014-11-07 14:10:03.290716116 +0100
++++ lib/atscppapi/examples/transactionhook/Makefile.in	2014-11-07 14:10:03.292716116 +0100
+@@ -574,7 +574,7 @@
+ target = TransactionHookPlugin.so
+ pkglib_LTLIBRARIES = TransactionHookPlugin.la
+ TransactionHookPlugin_la_SOURCES = TransactionHookPlugin.cc
+-TransactionHookPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++TransactionHookPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/async_timer/Makefile.am.orig	2014-11-07 14:10:03.293716116 +0100
++++ lib/atscppapi/examples/async_timer/Makefile.am	2014-11-07 14:10:03.294716116 +0100
+@@ -20,7 +20,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = AsyncTimer.la
+ AsyncTimer_la_SOURCES = AsyncTimer.cc
+-AsyncTimer_la_LDFLAGS =  -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++AsyncTimer_la_LDFLAGS =  -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/async_timer/Makefile.in.orig	2014-11-07 14:10:03.295716116 +0100
++++ lib/atscppapi/examples/async_timer/Makefile.in	2014-11-07 14:10:03.297716116 +0100
+@@ -573,7 +573,7 @@
+ target = AsyncTimer.so
+ pkglib_LTLIBRARIES = AsyncTimer.la
+ AsyncTimer_la_SOURCES = AsyncTimer.cc
+-AsyncTimer_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++AsyncTimer_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/serverresponse/Makefile.am.orig	2014-11-07 14:10:03.299716116 +0100
++++ lib/atscppapi/examples/serverresponse/Makefile.am	2014-11-07 14:10:03.299716116 +0100
+@@ -20,7 +20,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = ServerResponse.la
+ ServerResponse_la_SOURCES = ServerResponse.cc
+-ServerResponse_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++ServerResponse_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/serverresponse/Makefile.in.orig	2014-11-07 14:10:03.301716116 +0100
++++ lib/atscppapi/examples/serverresponse/Makefile.in	2014-11-07 14:10:03.304716116 +0100
+@@ -573,7 +573,7 @@
+ target = ServerResponse.so
+ pkglib_LTLIBRARIES = ServerResponse.la
+ ServerResponse_la_SOURCES = ServerResponse.cc
+-ServerResponse_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++ServerResponse_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/globalhook/Makefile.am.orig	2014-11-07 14:10:03.305716116 +0100
++++ lib/atscppapi/examples/globalhook/Makefile.am	2014-11-07 14:10:03.306716116 +0100
+@@ -20,7 +20,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = GlobalHookPlugin.la
+ GlobalHookPlugin_la_SOURCES = GlobalHookPlugin.cc
+-GlobalHookPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++GlobalHookPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/globalhook/Makefile.in.orig	2014-11-07 14:10:03.308716116 +0100
++++ lib/atscppapi/examples/globalhook/Makefile.in	2014-11-07 14:10:03.309716116 +0100
+@@ -573,7 +573,7 @@
+ target = GlobalHookPlugin.so
+ pkglib_LTLIBRARIES = GlobalHookPlugin.la
+ GlobalHookPlugin_la_SOURCES = GlobalHookPlugin.cc
+-GlobalHookPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++GlobalHookPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/clientredirect/Makefile.am.orig	2014-11-07 14:10:03.311716116 +0100
++++ lib/atscppapi/examples/clientredirect/Makefile.am	2014-11-07 14:10:03.312716116 +0100
+@@ -19,7 +19,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = ClientRedirect.la
+ ClientRedirect_la_SOURCES = ClientRedirect.cc
+-ClientRedirect_la_LDFLAGS =  -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++ClientRedirect_la_LDFLAGS =  -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/clientredirect/Makefile.in.orig	2014-11-07 14:10:03.313716116 +0100
++++ lib/atscppapi/examples/clientredirect/Makefile.in	2014-11-07 14:10:03.315716116 +0100
+@@ -573,7 +573,7 @@
+ target = ClientRedirect.so
+ pkglib_LTLIBRARIES = ClientRedirect.la
+ ClientRedirect_la_SOURCES = ClientRedirect.cc
+-ClientRedirect_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++ClientRedirect_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/post_buffer/Makefile.am.orig	2014-11-07 14:10:03.317716116 +0100
++++ lib/atscppapi/examples/post_buffer/Makefile.am	2014-11-07 14:10:03.318716116 +0100
+@@ -20,7 +20,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = PostBuffer.la
+ PostBuffer_la_SOURCES = PostBuffer.cc
+-PostBuffer_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++PostBuffer_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/post_buffer/Makefile.in.orig	2014-11-07 14:10:03.319716115 +0100
++++ lib/atscppapi/examples/post_buffer/Makefile.in	2014-11-07 14:10:03.321716115 +0100
+@@ -573,7 +573,7 @@
+ target = PostBuffer.so
+ pkglib_LTLIBRARIES = PostBuffer.la
+ PostBuffer_la_SOURCES = PostBuffer.cc
+-PostBuffer_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++PostBuffer_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/stat_example/Makefile.am.orig	2014-11-07 14:10:03.323716115 +0100
++++ lib/atscppapi/examples/stat_example/Makefile.am	2014-11-07 14:10:03.324716115 +0100
+@@ -21,7 +21,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = StatExample.la
+ StatExample_la_SOURCES = StatExample.cc
+-StatExample_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++StatExample_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/stat_example/Makefile.in.orig	2014-11-07 14:10:03.325716115 +0100
++++ lib/atscppapi/examples/stat_example/Makefile.in	2014-11-07 14:10:03.327716115 +0100
+@@ -573,7 +573,7 @@
+ target = StatExample.so
+ pkglib_LTLIBRARIES = StatExample.la
+ StatExample_la_SOURCES = StatExample.cc
+-StatExample_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++StatExample_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/customresponse/Makefile.am.orig	2014-11-07 14:10:03.328716115 +0100
++++ lib/atscppapi/examples/customresponse/Makefile.am	2014-11-07 14:10:03.329716115 +0100
+@@ -20,7 +20,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = CustomResponse.la
+ CustomResponse_la_SOURCES = CustomResponse.cc
+-CustomResponse_la_LDFLAGS =  -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++CustomResponse_la_LDFLAGS =  -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/customresponse/Makefile.in.orig	2014-11-07 14:10:03.331716115 +0100
++++ lib/atscppapi/examples/customresponse/Makefile.in	2014-11-07 14:10:03.332716115 +0100
+@@ -573,7 +573,7 @@
+ target = CustomResponse.so
+ pkglib_LTLIBRARIES = CustomResponse.la
+ CustomResponse_la_SOURCES = CustomResponse.cc
+-CustomResponse_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++CustomResponse_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/async_http_fetch/Makefile.am.orig	2014-11-07 14:10:03.334716115 +0100
++++ lib/atscppapi/examples/async_http_fetch/Makefile.am	2014-11-07 14:10:03.335716115 +0100
+@@ -21,7 +21,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = AsyncHttpFetch.la
+ AsyncHttpFetch_la_SOURCES = AsyncHttpFetch.cc
+-AsyncHttpFetch_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++AsyncHttpFetch_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/async_http_fetch/Makefile.in.orig	2014-11-07 14:10:03.336716115 +0100
++++ lib/atscppapi/examples/async_http_fetch/Makefile.in	2014-11-07 14:10:03.338716115 +0100
+@@ -573,7 +573,7 @@
+ target = AsyncHttpFetch.so
+ pkglib_LTLIBRARIES = AsyncHttpFetch.la
+ AsyncHttpFetch_la_SOURCES = AsyncHttpFetch.cc
+-AsyncHttpFetch_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++AsyncHttpFetch_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/remap_plugin/Makefile.am.orig	2014-11-07 14:10:03.340716115 +0100
++++ lib/atscppapi/examples/remap_plugin/Makefile.am	2014-11-07 14:10:03.340716115 +0100
+@@ -21,7 +21,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = RemapPlugin.la
+ RemapPlugin_la_SOURCES = RemapPlugin.cc
+-RemapPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++RemapPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/remap_plugin/Makefile.in.orig	2014-11-07 14:10:03.342716115 +0100
++++ lib/atscppapi/examples/remap_plugin/Makefile.in	2014-11-07 14:10:03.343716115 +0100
+@@ -573,7 +573,7 @@
+ target = RemapPlugin.so
+ pkglib_LTLIBRARIES = RemapPlugin.la
+ RemapPlugin_la_SOURCES = RemapPlugin.cc
+-RemapPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++RemapPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/timeout_example/Makefile.am.orig	2014-11-07 14:10:03.345716115 +0100
++++ lib/atscppapi/examples/timeout_example/Makefile.am	2014-11-07 14:10:03.346716115 +0100
+@@ -21,7 +21,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = TimeoutExamplePlugin.la
+ TimeoutExamplePlugin_la_SOURCES = TimeoutExamplePlugin.cc
+-TimeoutExamplePlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++TimeoutExamplePlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/timeout_example/Makefile.in.orig	2014-11-07 14:10:03.347716115 +0100
++++ lib/atscppapi/examples/timeout_example/Makefile.in	2014-11-07 14:10:03.349716115 +0100
+@@ -574,7 +574,7 @@
+ target = TimeoutExamplePlugin.so
+ pkglib_LTLIBRARIES = TimeoutExamplePlugin.la
+ TimeoutExamplePlugin_la_SOURCES = TimeoutExamplePlugin.cc
+-TimeoutExamplePlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++TimeoutExamplePlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/clientrequest/Makefile.am.orig	2014-11-07 14:10:03.351716115 +0100
++++ lib/atscppapi/examples/clientrequest/Makefile.am	2014-11-07 14:10:03.352716115 +0100
+@@ -21,7 +21,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = ClientRequest.la
+ ClientRequest_la_SOURCES = ClientRequest.cc
+-ClientRequest_la_LDFLAGS =  -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++ClientRequest_la_LDFLAGS =  -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/clientrequest/Makefile.in.orig	2014-11-07 14:10:03.353716115 +0100
++++ lib/atscppapi/examples/clientrequest/Makefile.in	2014-11-07 14:10:03.355716115 +0100
+@@ -573,7 +573,7 @@
+ target = ClientRequest.so
+ pkglib_LTLIBRARIES = ClientRequest.la
+ ClientRequest_la_SOURCES = ClientRequest.cc
+-ClientRequest_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++ClientRequest_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/logger_example/Makefile.am.orig	2014-11-07 14:10:03.356716115 +0100
++++ lib/atscppapi/examples/logger_example/Makefile.am	2014-11-07 14:10:03.357716115 +0100
+@@ -21,7 +21,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = LoggerExample.la
+ LoggerExample_la_SOURCES = LoggerExample.cc
+-LoggerExample_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++LoggerExample_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/logger_example/Makefile.in.orig	2014-11-07 14:10:03.358716115 +0100
++++ lib/atscppapi/examples/logger_example/Makefile.in	2014-11-07 14:10:03.360716115 +0100
+@@ -573,7 +573,7 @@
+ target = LoggerExample.so
+ pkglib_LTLIBRARIES = LoggerExample.la
+ LoggerExample_la_SOURCES = LoggerExample.cc
+-LoggerExample_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++LoggerExample_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/boom/Makefile.am.orig	2014-11-07 14:10:03.363716115 +0100
++++ lib/atscppapi/examples/boom/Makefile.am	2014-11-07 14:10:03.363716115 +0100
+@@ -19,7 +19,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = boom.la
+ boom_la_SOURCES = boom.cc
+-boom_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++boom_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/boom/Makefile.in.orig	2014-11-07 14:10:03.365716115 +0100
++++ lib/atscppapi/examples/boom/Makefile.in	2014-11-07 14:10:03.366716115 +0100
+@@ -572,7 +572,7 @@
+ target = boom.so
+ pkglib_LTLIBRARIES = boom.la
+ boom_la_SOURCES = boom.cc
+-boom_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++boom_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/intercept/Makefile.am.orig	2014-11-07 14:10:03.368716115 +0100
++++ lib/atscppapi/examples/intercept/Makefile.am	2014-11-07 14:10:03.369716115 +0100
+@@ -21,7 +21,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = intercept.la
+ intercept_la_SOURCES = intercept.cc
+-intercept_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++intercept_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/intercept/Makefile.in.orig	2014-11-07 14:10:03.370716115 +0100
++++ lib/atscppapi/examples/intercept/Makefile.in	2014-11-07 14:10:03.372716115 +0100
+@@ -573,7 +573,7 @@
+ target = intercept.so
+ pkglib_LTLIBRARIES = intercept.la
+ intercept_la_SOURCES = intercept.cc
+-intercept_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++intercept_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/multiple_transaction_hooks/Makefile.am.orig	2014-11-07 14:10:03.373716115 +0100
++++ lib/atscppapi/examples/multiple_transaction_hooks/Makefile.am	2014-11-07 14:10:03.374716115 +0100
+@@ -19,7 +19,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = MultipleTransactionHookPlugins.la
+ MultipleTransactionHookPlugins_la_SOURCES = MultipleTransactionHookPlugins.cc
+-MultipleTransactionHookPlugins_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++MultipleTransactionHookPlugins_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/multiple_transaction_hooks/Makefile.in.orig	2014-11-07 14:10:03.376716114 +0100
++++ lib/atscppapi/examples/multiple_transaction_hooks/Makefile.in	2014-11-07 14:10:03.377716114 +0100
+@@ -575,7 +575,7 @@
+ target = MultipleTransactionHookPlugins.so
+ pkglib_LTLIBRARIES = MultipleTransactionHookPlugins.la
+ MultipleTransactionHookPlugins_la_SOURCES = MultipleTransactionHookPlugins.cc
+-MultipleTransactionHookPlugins_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++MultipleTransactionHookPlugins_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/null_transformation_plugin/Makefile.am.orig	2014-11-07 14:10:03.379716114 +0100
++++ lib/atscppapi/examples/null_transformation_plugin/Makefile.am	2014-11-07 14:10:03.380716114 +0100
+@@ -21,7 +21,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = NullTransformationPlugin.la
+ NullTransformationPlugin_la_SOURCES = NullTransformationPlugin.cc
+-NullTransformationPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++NullTransformationPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/null_transformation_plugin/Makefile.in.orig	2014-11-07 14:10:03.381716114 +0100
++++ lib/atscppapi/examples/null_transformation_plugin/Makefile.in	2014-11-07 14:10:03.383716114 +0100
+@@ -574,7 +574,7 @@
+ target = NullTransformationPlugin.so
+ pkglib_LTLIBRARIES = NullTransformationPlugin.la
+ NullTransformationPlugin_la_SOURCES = NullTransformationPlugin.cc
+-NullTransformationPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++NullTransformationPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:
+--- lib/atscppapi/examples/gzip_transformation/Makefile.am.orig	2014-11-07 14:10:03.384716114 +0100
++++ lib/atscppapi/examples/gzip_transformation/Makefile.am	2014-11-07 14:10:03.385716114 +0100
+@@ -21,7 +21,7 @@
+ pkglibdir = ${pkglibexecdir}
+ pkglib_LTLIBRARIES = GzipTransformationPlugin.la
+ GzipTransformationPlugin_la_SOURCES = GzipTransformationPlugin.cc
+-GzipTransformationPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++GzipTransformationPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ 
+ all:
+ 	ln -sf .libs/$(target)
+--- lib/atscppapi/examples/gzip_transformation/Makefile.in.orig	2014-11-07 14:10:03.387716114 +0100
++++ lib/atscppapi/examples/gzip_transformation/Makefile.in	2014-11-07 14:10:03.388716114 +0100
+@@ -574,7 +574,7 @@
+ target = GzipTransformationPlugin.so
+ pkglib_LTLIBRARIES = GzipTransformationPlugin.la
+ GzipTransformationPlugin_la_SOURCES = GzipTransformationPlugin.cc
+-GzipTransformationPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_srcdir)/lib/atscppapi/src/ -latscppapi
++GzipTransformationPlugin_la_LDFLAGS = -module -avoid-version -shared -L$(top_builddir)/lib/atscppapi/src/ -latscppapi
+ all: all-am
+ 
+ .SUFFIXES:

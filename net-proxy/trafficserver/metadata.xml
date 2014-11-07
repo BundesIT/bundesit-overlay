@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<maintainer>
+  <name>Thomas Berger</name>
+  <email>th.berger@it.piratenpartei.de</email>
+</maintainer>
+<use>
+  <flag name='aio'>Enables support for Linux native AIO</flag>
+  <flag name='clang'>Build trafficserver with <pkg>sys-devel/clang</pkg></flag>
+  <flag name='collapsed-connection-plugin'>Build the collapsed connections plugin</flag>
+  <flag name='cppapi'>Build the C++ API</flag>
+  <flag name='example-plugins'>Build the example plugins</flag>
+  <flag name='experimental-plugins'>Build and install the experimental plugins</flag>
+  <flag name='interim-cache'>Enable interim cache support</flag>
+  <flag name='luajit'>Enable lua JIT</flag>
+  <flag name='man'>Generate man pages</flag>
+  <flag name='spdy'>Enable support for the spdy protocol</flag>
+  <flag name='test-tools'>Install additional testing tools</flag>
+  <flag name='tinfo'>use curses library (libncurses) with sep low-level terminfo library (libtinfo)</flag>
+  <flag name='traffictop'>Build the traffictop util</flag>
+  <flag name='wccp'>Enable support for the Web Cache Communication Protocol v2</flag>
+
+</use>
+</pkgmetadata>
