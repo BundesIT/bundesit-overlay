@@ -1,0 +1,11 @@
+--- configure.ac	2014-08-24 14:37:05.000000000 +0200
++++ configure.ac.with-tests	2014-11-07 12:09:47.837845331 +0100
+@@ -129,6 +129,8 @@
+     CUNIT_CFLAGS=""
+     AC_SUBST([CUNIT_LIBS])
+     AC_SUBST([CUNIT_CFLAGS])
++  else
++    AC_MSG_ERROR([CUnit not found.])
+   fi
+ fi
+ if test "x${have_cunit}" = "xyes"; then

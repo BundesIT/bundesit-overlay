@@ -1,0 +1,36 @@
+--- configure.ac	2014-08-24 14:37:05.000000000 +0200
++++ configure.ac.no-tests	2014-11-07 12:07:10.538848148 +0100
+@@ -117,32 +117,7 @@
+ fi
+ 
+ # cunit
+-PKG_CHECK_MODULES([CUNIT], [cunit >= 2.1], [have_cunit=yes], [have_cunit=no])
+-# If pkg-config does not find cunit, check it using AC_CHECK_LIB.  We
+-# do this because Debian (Ubuntu) lacks pkg-config file for cunit.
+-if test "x${have_cunit}" = "xno"; then
+-  AC_MSG_WARN([${CUNIT_PKG_ERRORS}])
+-  AC_CHECK_LIB([cunit], [CU_initialize_registry],
+-               [have_cunit=yes], [have_cunit=no])
+-  if test "x${have_cunit}" = "xyes"; then
+-    CUNIT_LIBS="-lcunit"
+-    CUNIT_CFLAGS=""
+-    AC_SUBST([CUNIT_LIBS])
+-    AC_SUBST([CUNIT_CFLAGS])
+-  fi
+-fi
+-if test "x${have_cunit}" = "xyes"; then
+-  # cunit in Mac OS X requires ncurses. Note that in Mac OS X, test
+-  # program can be built without -lncurses, but it emits runtime
+-  # error.
+-  case "${build}" in
+-    *-apple-darwin*)
+-      CUNIT_LIBS="$CUNIT_LIBS -lncurses"
+-      AC_SUBST([CUNIT_LIBS])
+-      ;;
+-  esac
+-fi
+-
++have_cunit=no
+ AM_CONDITIONAL([HAVE_CUNIT], [ test "x${have_cunit}" = "xyes" ])
+ 
+ # openssl (for examples)

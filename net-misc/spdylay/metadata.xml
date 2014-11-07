@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<maintainer>
+  <name>Thomas Berger</name>
+  <email>th.berger@it.piratenpartei.de</email>
+</maintainer>
+<use>
+  <flag name='man'>generate man pages</flag>
+  <flag name='shrpx'>build and install speedy proxy</flag>
+  <flag name='spdyd'>build and install spdyd</flag>
+  <flag name='tools'>build and install additional tools</flag>
+</use>
+</pkgmetadata>

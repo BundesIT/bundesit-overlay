@@ -1,0 +1,11 @@
+--- configure.ac	2014-08-24 14:37:05.000000000 +0200
++++ configure.ac.shrpx	2014-11-07 12:03:05.098852543 +0100
+@@ -159,7 +159,7 @@
+                   [have_libevent_openssl=yes], [have_libevent_openssl=no])
+ if test "x${have_libevent_openssl}" = "xno"; then
+   AC_MSG_NOTICE($LIBEVENT_OPENSSL_PKG_ERRORS)
+-  AC_MSG_NOTICE([Shrpx example program will not be built.])
++  AC_MSG_ERROR([libevent_openssl not found.])
+ fi
+ AM_CONDITIONAL([HAVE_LIBEVENT_OPENSSL],
+                [ test "x${have_libevent_openssl}" = "xyes" ])

@@ -1,0 +1,18 @@
+--- configure.ac	2014-08-24 14:37:05.000000000 +0200
++++ configure.ac.no-shrpx	2014-11-07 12:01:16.538854487 +0100
+@@ -154,13 +154,8 @@
+ fi
+ 
+ # libevent_openssl
+-# 2.0.8 is required because we use evconnlistener_set_error_cb()
+-PKG_CHECK_MODULES([LIBEVENT_OPENSSL], [libevent_openssl >= 2.0.8],
+-                  [have_libevent_openssl=yes], [have_libevent_openssl=no])
+-if test "x${have_libevent_openssl}" = "xno"; then
+-  AC_MSG_NOTICE($LIBEVENT_OPENSSL_PKG_ERRORS)
+-  AC_MSG_NOTICE([Shrpx example program will not be built.])
+-fi
++have_libevent_openssl=no
++AC_MSG_NOTICE([Shrpx example program will not be built.])
+ AM_CONDITIONAL([HAVE_LIBEVENT_OPENSSL],
+                [ test "x${have_libevent_openssl}" = "xyes" ])
+ 

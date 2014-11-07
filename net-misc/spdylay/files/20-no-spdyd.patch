@@ -1,0 +1,13 @@
+--- src/Makefile.am	2014-08-24 14:37:05.000000000 +0200
++++ src/Makefile.am-nospdy	2014-11-07 12:46:52.059805499 +0100
+@@ -36,10 +36,6 @@
+ 
+ bin_PROGRAMS += spdycat
+ 
+-if ENABLE_SPDYD
+-bin_PROGRAMS += spdyd
+-endif # ENABLE_SPDYD
+-
+ if HAVE_LIBEVENT_OPENSSL
+ bin_PROGRAMS += shrpx
+ endif # HAVE_LIBEVENT_OPENSSL
