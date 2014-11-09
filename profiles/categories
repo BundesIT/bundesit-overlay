@@ -1,5 +1,7 @@
 app-admin
 app-emulation
+dev-perl
+net-mail
 net-misc
 net-proxy
 sys-apps

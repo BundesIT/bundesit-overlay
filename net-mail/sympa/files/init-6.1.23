@@ -1,0 +1,135 @@
+#!/sbin/runscript
+# Copyright 1999-2014 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+sympadir="%SYMPA_HOME%/bin"
+sympaconf="/etc/sympa/sympa.conf"
+wwsympaconf="/etc/sympa/wwsympa.conf"
+
+depend() {
+    use net
+}
+
+
+sympa_status() {
+    progname=$1
+    if [ -f /run/sympa/$progname.pid ] ; then
+        pid=`head -1 /run/sympa/$progname.pid | tr -s ' ' '|'`
+        if [ -n $pid ] ; then
+            running=`ps -A | egrep "$pid"`
+            if [ -z "$running" ]; then
+                return 1
+            else
+                return 0
+            fi
+        fi
+    fi
+    return 3
+}
+
+
+sympa_start() {
+    progname=$1
+    sympa_status $progname
+    case "$?" in
+        0)
+            return 0
+            ;;
+        1|2|3)
+            $sympadir/$progname.pl
+            return $?
+            ;;
+     esac
+}
+
+sympa_stop() {
+    progname=$1
+    if [ -f /run/sympa/$progname.pid ] ; then
+        pids=`head -1 /run/sympa//$1.pid`
+        runcount=0
+        if [ "$pids" != "" ]; then
+            for pid in $pids; do
+                killcount=0
+                running=`ps -A | grep "$pid ..* $1\\.pl"`
+                while [ -n "$running" ]; do
+                    if [ $killcount -gt 10 ]; then
+                        return 3
+                    fi
+                    kill -TERM $pid >/dev/null 2>&1
+                    running=`ps -A | grep "$pid ..* $1\\.pl"`
+                    if [ -z "$running" ]; then
+                        runcount=`expr $runcount + 1`
+                        break
+                    fi
+                    sleep 2
+                    running=`ps -A | grep "$pid ..* $1\\.pl"`
+                    if [ -z $running ]; then
+                        runcount=`expr $runcount + 1`
+                        break
+                    fi
+                    killcount=`expr $killcount + 1`
+                done
+            done
+        fi
+        if [ $runcount -gt 0 ]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+    return 0
+}
+
+start() {
+    mkdir -p /run/sympa
+
+    for prog in sympa bulk archived bounced task_manager ; do
+        ebegin "starting $prog"
+        sympa_start $prog
+        eend $?
+    done
+
+    test -d /var/lock/subsys || mkdir -p /var/lock/subsys
+    touch /var/lock/subsys/sympa
+}
+
+stop() {
+    failed=0
+    for prog in bounced archived bulk sympa ; do
+        ebegin "stopping $prog"
+        sympa_stop $prog
+        eend $?
+        failed=$(($failed + $?))
+    done
+
+    if [ -f /run/sympa/sympa-creation.pid ]; then
+        ebegin "stopping sympa-creation"
+        sympa_stop sympa-creation
+        eend $?
+        failed=$(($failed + $1))
+    fi
+
+    ebegin "stopping task_manager"
+    sympa_stop task_manager
+    eend $?
+
+    rm -f /var/lock/subsys/sympa
+}
+
+status() {
+    failed=0
+    ebegin "Sympa subsystem running"
+    test -f /var/lock/subsys/sympa
+    ewend $?
+
+    failed=$(($rcstatus + $?))
+
+    for prog in sympa bulk archived bounced task_manager ; do
+        ebegin "$prog running"
+        sympa_status $prog
+        ewend $?
+        failed=$(($rcstatus + $?))
+    done
+    ebegin "Sympa up and running"
+    eend $rcstatus
+}

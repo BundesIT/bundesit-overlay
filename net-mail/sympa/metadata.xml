@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<maintainer>
+  <name>Thomas Berger</name>
+  <email>th.berger@it.piratenpartei.de</email>
+</maintainer>
+<use>
+  <flag name='dkim'>Add support for DKIM Signatures</flag>
+  <flag name='fcgi'>Add support for mod_fcgid</flag>
+  <flag name='smime'>Add support for S/MIME</flag>
+</use>
+</pkgmetadata>

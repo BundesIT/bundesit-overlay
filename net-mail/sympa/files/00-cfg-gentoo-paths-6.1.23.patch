@@ -1,0 +1,41 @@
+--- src/lib/confdef.pm.orig	2014-11-07 22:35:40.107779639 +0100
++++ src/lib/confdef.pm	2014-11-07 22:43:04.772771676 +0100
+@@ -1208,7 +1208,8 @@
+         'file'   => 'sympa.conf',
+         'edit'   => '1',
+         'advice' => 'Sympa recognizes S/MIME if OpenSSL is installed',
+-	'optional' => '1',
++        'optional' => '1',
++        'default' => '/usr/bin/openssl'
+     },
+     {
+         'name'   => 'capath',
+@@ -1218,6 +1219,7 @@
+         'file'   => 'sympa.conf',
+         'edit'   => '1',
+         'optional' => '1',
++        'default' => '/etc/ssl/certs/'
+     },
+     {
+         'name'   => 'cafile',
+@@ -1226,6 +1228,7 @@
+         'file'   => 'sympa.conf',
+         'edit'   => '1',
+         'optional' => '1',
++        'default' => '/etc/ssl/certs/ca-certificates.crt',
+     },
+     {
+         'name'    => 'crl_dir',
+@@ -1529,10 +1529,10 @@
+     ##{ html_editor_show: not yet implemented. },
+     {
+         'name'    => 'use_fast_cgi',
+-        'default' => '1',
++        'default' => '%FCGI_ON%',
+         'query'   => 'Is fast_cgi module for Apache (or Roxen) installed (0 | 1)',
+         'file'    => 'wwsympa.conf',
+-        'edit'    => '1',
++        'edit'    => '0',
+         'advice'  => 'This module provide much faster web interface',
+     },
+     {

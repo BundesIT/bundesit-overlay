@@ -1,0 +1,266 @@
+commit d721d835ca31e56bf922a1b2e778d259a652cdc7
+Author: Thomas Berger <tbe@boreus.de>
+Date:   Sat Nov 8 20:05:40 2014 +0100
+
+    added alias-manager with database support
+
+diff --git a/Makefile.am b/Makefile.am
+index 5fe50ac..3bcc9f6 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -78,7 +78,7 @@ installconfig: installdir
+ 		chown $(USER) data_structure.version || /bin/true; \
+ 		chgrp $(GROUP) data_structure.version || /bin/true; \
+ 	fi
+-	@for dir in create_list_templates families \
++	@for dir in create_list_templates families db_alias \
+ 		global_task_models list_task_models scenari search_filters \
+ 		mail_tt2 web_tt2; do \
+ 		if [ ! -d $(DESTDIR)$(sysconfdir)/$$dir ] ; then \
+diff --git a/src/Makefile.am b/src/Makefile.am
+index ce00ef5..5c67867 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -26,7 +26,7 @@ SUBDIRS = etc lib
+ AM_CPPFLAGS = -DCONFIG=\"$(CONFIG)\"
+ 
+ sbin_SCRIPTS = sympa.pl bulk.pl alias_manager.pl task_manager.pl \
+-	       sympa_wizard.pl sympa_newaliases.pl
++	       sympa_wizard.pl sympa_newaliases.pl db-alias_manager.pl
+ 
+ libexec_PROGRAMS = queue bouncequeue familyqueue sympa_newaliases-wrapper
+ queue_SOURCES = queue.c
+@@ -44,6 +44,7 @@ man1_MANS = sympa_newaliases.1
+ EXTRA_DIST = $(modules_DATA) \
+ 	     bulk.pl.in \
+ 	     alias_manager.pl.in \
++	     db-alias_manager.pl.in \
+ 	     sympa.pl.in \
+ 	     sympa_wizard.pl.in \
+ 	     task_manager.pl.in \
+@@ -68,7 +69,7 @@ install-exec-hook:
+ 	-chgrp $(GROUP) $(DESTDIR)$(libexecdir)/sympa_newaliases-wrapper
+ 	chmod 4750 $(DESTDIR)$(libexecdir)/sympa_newaliases-wrapper
+ 
+-alias_manager.pl bulk.pl task_manager.pl sympa.pl sympa_wizard.pl: Makefile
++alias_manager.pl db-alias_manager.pl bulk.pl task_manager.pl sympa.pl sympa_wizard.pl: Makefile
+ 	rm -f $@
+ 	$(AM_V_GEN)$(SED) \
+ 		-e 's|--PERL--|$(PERL)|' \
+@@ -77,6 +78,7 @@ alias_manager.pl bulk.pl task_manager.pl sympa.pl sympa_wizard.pl: Makefile
+ 	chmod +x $@
+ 
+ alias_manager.pl: $(srcdir)/alias_manager.pl.in
++db-alias_manager.pl: $(srcdir)/db-alias_manager.pl.in
+ bulk.pl: $(srcdir)/bulk.pl.in
+ sympa.pl: $(srcdir)/sympa.pl.in
+ sympa_wizard.pl: $(srcdir)/sympa_wizard.pl.in
+diff --git a/src/db-alias_manager.pl.in b/src/db-alias_manager.pl.in
+new file mode 100644
+index 0000000..5461c50
+--- /dev/null
++++ b/src/db-alias_manager.pl.in
+@@ -0,0 +1,161 @@
++#!--PERL--
++
++$ENV{'PATH'} = '';
++
++## Load Sympa.conf
++use strict;
++use lib '--modulesdir--';
++use Conf;
++use POSIX;
++use tools;
++use tt2;
++use Sympa::Constants;
++use Datasource;
++
++my $sympa_conf_file = Sympa::Constants::CONFIG;
++unless (Conf::load($sympa_conf_file)) {
++   print STDERR "The configuration file $sympa_conf_file contains errors.\n";
++   exit(1);
++}
++
++my $default_domain;
++my $path_to_queue       = Sympa::Constants::LIBEXECDIR . '/queue';
++my $path_to_bouncequeue = Sympa::Constants::LIBEXECDIR .'/bouncequeue';
++
++my ($operation, $listname, $domain, $file) = @ARGV;
++
++
++if (($operation !~ /^(add|del)$/) || ($#ARGV < 2)) {
++    printf STDERR "Usage: $0 <add|del> <listname> <robot> [file]\n";
++    exit(2);
++}
++
++$default_domain = $Conf{'domain'};
++
++my $target_type = &Conf::get_robot_conf($domain, 'dbaliases_target_type');
++my $external_domain = &Conf::get_robot_conf($domain, 'dbaliases_external_domain');
++
++my $alias_query_file = $file ? $file : &Conf::get_robot_conf($domain, 'dbaliases_query_file');
++$alias_query_file = &tools::get_filename('etc',{},"db_alias/$alias_query_file", $domain);
++
++unless (-w "$alias_query_file") {
++    print STDERR "Unable to access $alias_query_file\n";
++    exit(5);
++}
++    
++my %data;
++$data{'date'} =  &POSIX::strftime("%d %b %Y", localtime(time));
++
++
++my $is_default_domain = 1 if ($domain eq $default_domain);
++my $return_path_suffix = &Conf::get_robot_conf($domain, 'return_path_suffix');
++
++my $sql_conf = load_sql_config($alias_query_file);
++die "could not parse $alias_query_file" unless defined $sql_conf;
++
++my $ds = new Datasource('SQL', $sql_conf->{'sql_alias_config'});
++die sprintf('Unable to connect to the SQL server %s:%d',$sql_conf->{'sql_alias_config'}{'db_host'}, $sql_conf->{'sql_alias_config'}{'db_port'}) unless ($ds->connect() && $ds->ping);
++
++my $rdomain  = $external_domain ? $external_domain : $domain;
++my $addr_str = "$listname\%s\@\%s";
++
++
++my $query;
++if ( $operation eq 'add' ) {
++    $query = $sql_conf->{sql_alias_config}{insert_statement};
++} elsif ( $operation eq 'del' ) {
++    $query = $sql_conf->{sql_alias_config}{delete_statement}
++}
++
++foreach my $alias ( '','-request','-editor','-subscribe','-unsubscribe' ) {
++    my $vars = generate_vars($alias);
++    run_query($query,$vars) unless ( $operation eq 'add' && already_defined($vars) );
++}
++my $vars = generate_vars($return_path_suffix,1);
++run_query($query,$vars) unless ( $operation eq 'add' && already_defined($vars) );
++
++$ds->disconnect();
++exit 0;
++
++sub generate_vars {
++    my ($suffix,$bounce) = @_;
++    my $result;
++
++    my $list_addr = sprintf($addr_str,$suffix,$domain);
++    $result->{addr} = sprintf($addr_str,$suffix,$rdomain);
++    if ( $target_type eq 'pipe' ) {
++        $result->{dest} = sprintf('|%s %s',
++            $bounce ?
++                ( $path_to_bouncequeue,sprintf($addr_str,'',$domain) ) :
++                ( $path_to_queue, $list_addr)
++        );
++    }
++    elsif ( $target_type eq 'address' ) {
++        $result->{dest} = $list_addr;
++    }
++    elsif ( $target_type eq 'transport' ) {
++        $result->{transport} = $bounce ? 'sympabounce' : 'sympa';
++    } else {
++        die "unkown target type $target_type";
++    }
++
++    return $result;
++}
++
++sub already_defined {
++    my $vars = shift;
++    run_query($sql_conf->{sql_alias_config}{select_statement},$vars);
++    my $res = $ds->fetch;
++    if ( exists $res->[0] ) {
++        warn sprintf("alias for %s does already exist!\n",$vars->{addr});
++        return 1;
++    }
++    return undef;
++}
++
++sub run_query {
++    my ($q,$data) = @_;
++    my $f = $q;
++    my @args;
++    while ($f =~ /\[(\w+)\]/x) {
++        my $var = $1;
++
++        my $r;
++        if ( !exists $data->{$var}) {
++            die "unknown placeholder $var";
++        } else {
++            $r = $data->{$var};
++        }
++        $f =~ s/\[$var\]/$r/;
++        $q =~ s/\[$var\]/\%s/;
++        push @args,$r;
++    }
++    foreach (@args) {
++        $_ = $ds->quote($_);
++    }
++
++    my $stmt = sprintf($q,@args);
++    die "query failed: $stmt" unless $ds->query($stmt);
++}
++
++sub load_sql_config {
++    my $file = shift;
++    my %params = (
++        'sql_alias_config' => { 'occurrence' => '1', format => {
++            'db_type' => {'format' => 'mysql|SQLite|Pg|Oracle|Sybase', },
++            'db_name' => {'format' => '.*', 'occurrence' => '1', },
++            'db_host' => {'format' => '.*', 'occurrence' => '1', },
++            'insert_statement' => {'format' => '.*', 'occurrence' => '1', },
++            'delete_statement' => {'format' => '.*', 'occurrence' => '1', },
++            'select_statement' => {'format' => '.*', 'occurrence' => '1', },
++            'db_user' => {'format' => '.*', 'occurrence' => '0-1',  },
++            'db_passwd' => {'format' => '.*', 'occurrence' => '0-1',},
++            'db_options' => {'format' => '.*', 'occurrence' => '0-1',},
++            'db_env' => {'format' => '.*', 'occurrence' => '0-1',},
++            'db_port' => {'format' => '\d+', 'occurrence' => '0-1',},
++            'db_timeout' => {'format' => '\d+', 'occurrence' => '0-1',},
++        }}
++    );
++    return undef unless  (-r $file);
++    return (&Conf::load_generic_conf_file($file,\%params, 'abort'));
++}
+diff --git a/src/lib/confdef.pm b/src/lib/confdef.pm
+index 4e40f1c..d16c058 100644
+--- a/src/lib/confdef.pm
++++ b/src/lib/confdef.pm
+@@ -1556,6 +1556,37 @@ our @params = (
+         'file'     => 'sympa.conf',
+ 	'optional' => '1',
+     },
++    {   'title'    => 'DB Aliases' },
++    {
++        'name'     => 'dbaliases_target_type',
++        'query'    => 'Type for aliases if db-alias_manager.pl is used',
++        'sample'   => 'pipe',
++        'edit'     => '1',
++        'file'     => 'sympa.conf',
++        'optional' => '1',
++        'vhost'    => '1',
++        'db'       => 'db_first',
++    },
++    {
++        'name'     => 'dbaliases_external_domain',
++        'query'    => 'External domain if dbaliases_target_type is "address"',
++        'sample'   => 'domain.tld',
++        'edit'     => '1',
++        'file'     => 'sympa.conf',
++        'optional' => '1',
++        'vhost'    => '1',
++        'db'       => 'db_first',
++    },
++    {
++        'name'     => 'dbaliases_query_file',
++        'query'    => 'SQL Query file for db-alias_manager.pl',
++        'sample'   => 'aliases-db.sql',
++        'edit'     => '1',
++        'file'     => 'sympa.conf',
++        'optional' => '1',
++        'vhost'    => '1',
++        'db'       => 'db_first',
++    },
+ 
+ ## Not implemented yet.
+ ##    {
