@@ -9,8 +9,8 @@ inherit eutils
 
 DESCRIPTION="XenServer guest utilities"
 HOMEPAGE="http://www.xenserver.org"
-SRC_URI="amd64? ( http://gentoo.bundesit.de/distfiles/generic/xe-guest-utilities_6.2.0-1133_amd64.deb )
-x86? ( http://gentoo.bundesit.de/distfiles/generic/xe-guest-utilities_6.2.0-1133_i386.deb )"
+SRC_URI="amd64? ( http://gentoo.bundesit.de/distfiles/generic/xe-guest-utilities_6.2.0-1137_amd64.deb )
+x86? ( http://gentoo.bundesit.de/distfiles/generic/xe-guest-utilities_6.2.0-1137_i386.deb )"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
