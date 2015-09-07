@@ -15,7 +15,7 @@ SRC_URI="http://www.percona.com/redir/downloads/XtraBackup/LATEST/source/tarball
 
 LICENSE="GPL"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~arm"
 IUSE=""
 
 RDEPEND="sys-libs/zlib
