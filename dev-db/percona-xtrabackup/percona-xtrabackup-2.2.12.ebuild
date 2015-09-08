@@ -26,11 +26,13 @@ RDEPEND="sys-libs/zlib
 DEPEND="${REPEND}
 	sys-devel/flex
 	sys-devel/bison
-	dev-util/cmake"
+	dev-util/cmake
+	dev-python/sphinx"
 
 src_configure() {
 	local mycmakeargs=(
-		-DBUILD_CONFIG=xtrabackup_release
+		-DBUILD_CONFIG=xtrabackup_release 
+		-DUNIV_DEBUG=1
 	)
 
 	cmake-utils_src_configure
