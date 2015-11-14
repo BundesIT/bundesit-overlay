@@ -15,12 +15,16 @@ SRC_URI="mirror://apache/${PN}/${P}.tar.bz2"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="traffictop clang experimental-plugins"
+IUSE="traffictop debug clang experimental-plugins wccp interim-cache spdy cppapi aio tinfo example-plugins test-tools +luajit +man geoip"
 
-DEPEND="dev-lang/tcl
-    clang? ( >=sys-devel/clang-3.3 )"
-RDEPEND="dev-lang/tcl
-    traffictop? ( sys-libs/ncurses )"
+RDEPEND="dev-lang/tcl 
+	traffictop? ( sys-libs/ncurses[tinfo=] )
+	spdy? ( net-misc/spdylay )
+	geoip? ( dev-libs/geoip )"
+
+DEPEND="${RDEPEND}
+    clang? ( >=sys-devel/clang-3.3 )
+	man? ( dev-python/sphinx )"
 
 group_user_check() {
     einfo "Checking for tc group ..."
@@ -34,7 +38,9 @@ pkg_setup() {
 }
 
 src_prepare() {
-    if use traffictop ; then epatch "${FILESDIR}/00-ncurses.patch" ; fi
+    use traffictop && use tinfo && epatch "${FILESDIR}/00-ncurses.patch"
+#	use cppapi && epatch ${FILESDIR}/20-atscppapi-include-fix.patch
+	use man && epatch ${FILESDIR}/20-man.patch
     eautoreconf
 }
 
@@ -51,12 +57,21 @@ src_configure() {
         --libexecdir=/usr/$(get_libdir)/${PN}
         --with-user=tc
         --with-group=tc
-        --disable-libev
         --without-profiler
         --enable-eventfd
     	--disable-hwloc
-    $(use_with traffictop ncurses)
-    $(use_enable experimental-plugins))
+	    $(use_with traffictop ncurses)
+		$(use_enable aio linux-native-aio)
+		$(use_enable cppapi)
+		$(use_enable debug)
+		$(use_enable example-plugins)
+	    $(use_enable experimental-plugins)
+		$(use_enable luajit)
+		$(use_enable man man-pages)
+		$(use_enable spdy)
+		$(use_enable test-tools)
+		$(use_enable wccp)
+	)
     autotools-utils_src_configure
 }
 
@@ -87,8 +102,7 @@ src_install() {
 }
 
 pkg_postinst() {
-    elog "The behavior of proxy.config.ssl.server.honor_cipher_order has been changed!"
     elog "Remeber to update your configuration file."
     elog "A full list of changes could be found on here:"
-    elog "  https://cwiki.apache.org/confluence/display/TS/What%27s+new+in+v4.2.x"
+    elog "  https://cwiki.apache.org/confluence/display/TS/What%27s+new+in+v6.0.x"
 }
