@@ -1,0 +1,41 @@
+diff --git a/Makefile b/Makefile
+index bd1b3c6..d7f41c1 100644
+--- a/Makefile
++++ b/Makefile
+@@ -43,7 +43,7 @@ etc:	patch
+ usr:	patch
+ 	$(MAKE) -C usr USR=$(USR) GROUP=$(GROUP) MHVTL_HOME_PATH=$(MHVTL_HOME_PATH) MHVTL_CONFIG_PATH=$(MHVTL_CONFIG_PATH)
+ 
+-kernel: patch
++module: patch
+ 	$(MAKE) -C kernel
+ 
+ .PHONY:check
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 15ce3e8..98cc2da 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -28,7 +28,9 @@ endif
+ PWD	:= $(shell pwd)
+ 
+ default:
+-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
++	$(MAKE) -C $(KDIR) M=$(PWD) modules
++
++module: default
+ 
+ clean:
+ 	rm -f mhvtl.ko
+diff --git a/man/Makefile b/man/Makefile
+index 9793195..5cd50ad 100644
+--- a/man/Makefile
++++ b/man/Makefile
+@@ -37,7 +37,7 @@ YEAR = $(shell date +%Y)
+ 
+ PREFIX ?= /usr
+ USR ?= vtl
+-SUSER = root
++SUSER =  $(SUSER)
+ GROUP ?= vtl
+ MHVTL_HOME_PATH ?= /opt/mhvtl
+ MHVTL_CONFIG_PATH ?= /etc/mhvtl

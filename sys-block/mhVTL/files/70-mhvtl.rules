@@ -1,0 +1,1 @@
+KERNEL=="mhvtl[0-9]*", MODE="0660", OWNER="vtl", GROUP="vtl"
