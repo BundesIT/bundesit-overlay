@@ -1,0 +1,11 @@
+--- usr/make_vtl_media.in.old	2012-10-24 18:23:45.857923695 -0400
++++ usr/make_vtl_media.in	2012-10-24 18:24:24.960525895 -0400
+@@ -49,7 +49,7 @@
+ 	if [ -x "$(which setuidgid >/dev/null 2>&1)" ]; then
+ 		$dry setuidgid $USER $*
+ 	else
+-		$dry $RUNAS $USER -c "$*"
++		$dry $RUNAS $USER -s /bin/sh -c "$*"
+ 	fi
+ }
+ 
