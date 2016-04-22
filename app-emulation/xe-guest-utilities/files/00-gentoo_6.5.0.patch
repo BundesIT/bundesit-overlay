@@ -1,0 +1,37 @@
+diff -uar a/usr/sbin/xe-linux-distribution b/usr/sbin/xe-linux-distribution
+--- a/usr/sbin/xe-linux-distribution	2015-08-12 12:11:43.000000000 +0200
++++ b/usr/sbin/xe-linux-distribution	2016-04-22 18:35:05.632716877 +0200
+@@ -268,6 +268,25 @@
+     write_to_output "${distro}" "${major}" "${minor}" "${description}"
+ }
+ 
++identify_gentoo()
++{
++    gentoo_release="$1"
++    if [ ! -e "${gentoo_release}" ] ; then
++            return 1
++    fi
++    distro="gentoo"
++    eval $(cat ${gentoo_release} | awk '{ print "release=" $5 }' )
++    if [ -z "${release}" ] ; then
++            return 1
++    fi
++    eval $(echo $release | awk -F. -- '{ print "major=" $1 ; print "minor=" $2 }' )
++    if [ -z "${major}" -o -z "$minor" ] ; then
++            return 1
++    fi
++    write_to_output "${distro}" "${major}" "${minor}" "${distro}"
++}
++
++
+ if [ $# -eq 1 ] ; then
+     exec 1>"$1"
+ fi
+@@ -280,6 +299,7 @@
+     identify_sles   /etc/SuSE-release   && exit 0
+     identify_lsb    lsb_release         && exit 0
+     identify_debian /etc/debian_version && exit 0
++    identify_gentoo /etc/gentoo-release && exit 0
+ 
+     if [ $# -eq 1 ] ; then
+ 	rm -f "$1"
