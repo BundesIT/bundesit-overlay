@@ -15,7 +15,7 @@ SRC_URI="mirror://apache/${PN}/${P}.tar.bz2"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="traffictop debug clang experimental-plugins wccp interim-cache spdy cppapi aio tinfo example-plugins test-tools +luajit +man geoip"
+IUSE="traffictop debug clang experimental-plugins wccp spdy cppapi aio tinfo example-plugins test-tools +luajit +man geoip"
 
 RDEPEND="dev-lang/tcl 
 	traffictop? ( sys-libs/ncurses[tinfo=] )
