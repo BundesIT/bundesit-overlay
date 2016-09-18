@@ -6,7 +6,7 @@
 
 EAPI=5
 
-inherit autotools autotools-utils eutils user
+inherit autotools autotools-utils eutils user systemd
 
 DESCRIPTION="Apache Traffic Server™ is fast, scalable and extensible caching proxy server"
 HOMEPAGE="http://trafficserver.apache.org"
@@ -31,6 +31,15 @@ group_user_check() {
     enewgroup tc
     einfo "Checking for tc user ..."
     enewuser tc -1 -1 /dev/null tc
+}
+
+check_32bit() {
+	case "${ABI}" in
+		arm|x86)
+			echo "--enable-32bit-build"
+			;;
+		default) ;;
+	esac
 }
 
 pkg_setup() {
@@ -71,6 +80,7 @@ src_configure() {
 		$(use_enable spdy)
 		$(use_enable test-tools)
 		$(use_enable wccp)
+		$(check_32bit)
 	)
     autotools-utils_src_configure
 }
@@ -99,6 +109,8 @@ src_install() {
 
     newinitd ${FILESDIR}/tc.init trafficserver
     newconfd ${FILESDIR}/tc.confd trafficserver
+
+    systemd_dounit ${BUILD_DIR}/rc/trafficserver.service
 }
 
 pkg_postinst() {
