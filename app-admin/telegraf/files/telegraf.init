@@ -1,0 +1,21 @@
+#!/sbin/openrc-run
+# Copyright 1999-2017 Piratenpartei BundesIT
+# Distributed under the terms of the GNU General Public License v2
+
+depend() {
+  need net
+}
+
+start() {
+  ebegin "starting telegraf"
+  start-stop-daemon --start --exec /usr/bin/telegraf --pidfile /run/telegraf.pid --user telegraf:telegraf --background -m --stderr /var/log/telegraf/telegraf.log -- \
+  	-config /etc/telegraf/telegraf.conf -config-directory /etc/telegraf/telegraf.d
+  eend $?  	
+}
+
+stop() {
+  ebegin "starting telegraf"
+  start-stop-daemon --stop --exec /usr/bin/telegraf --pidfile /run/telegraf.pid 
+  eend $?  	
+}
+
