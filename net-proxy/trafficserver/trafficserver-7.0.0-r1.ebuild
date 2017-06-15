@@ -98,9 +98,6 @@ src_install() {
 
     keepdir /var/cache/trafficserver
     
-    keepdir /run/trafficserver
-    fowners tc:tc /run/trafficserver
-
     fowners tc:tc /etc/trafficserver
 
     keepdir /etc/trafficserver/snapshots
@@ -110,6 +107,7 @@ src_install() {
     newconfd ${FILESDIR}/tc.confd trafficserver
 
     systemd_dounit ${BUILD_DIR}/rc/trafficserver.service
+	systemd_newtmpfilesd "${FILESDIR}/trafficserver-tempdir.conf" "30-trafficserver.conf"
 }
 
 pkg_postinst() {
