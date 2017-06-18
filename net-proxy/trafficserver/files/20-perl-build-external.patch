@@ -1,0 +1,14 @@
+diff -uar a/lib/Makefile.am b/lib/Makefile.am
+--- a/lib/Makefile.am	2017-06-18 18:39:50.913056654 +0200
++++ b/lib/Makefile.am	2017-06-18 18:40:30.368807915 +0200
+@@ -18,10 +18,6 @@
+ 
+ SUBDIRS = ts records tsconfig bindings atscppapi
+ 
+-if BUILD_PERL_LIB
+-SUBDIRS += perl
+-endif
+-
+ if BUILD_WCCP
+ SUBDIRS += wccp
+ endif

@@ -6,7 +6,7 @@
   <email>th.berger@it.piratenpartei.de</email>
 </maintainer>
 <use>
-  <flag name='aio'>Enables support for Linux native AIO</flag>
+  <flag name='aio'>Enables experimental support for Linux native AIO</flag>
   <flag name='clang'>Build trafficserver with <pkg>sys-devel/clang</pkg></flag>
   <flag name='collapsed-connection-plugin'>Build the collapsed connections plugin</flag>
   <flag name='cppapi'>Build the C++ API</flag>
@@ -20,6 +20,7 @@
   <flag name='tinfo'>use curses library (libncurses) with sep low-level terminfo library (libtinfo)</flag>
   <flag name='traffictop'>Build the traffictop util</flag>
   <flag name='wccp'>Enable support for the Web Cache Communication Protocol v2</flag>
-
+  <flag name='hwloc'>Enable HWLoc lib support</flag>
+  <flag name='eventfd'>Enable eventfd support</flag>
 </use>
 </pkgmetadata>
