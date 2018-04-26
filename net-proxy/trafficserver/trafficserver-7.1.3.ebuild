@@ -6,7 +6,9 @@
 
 EAPI=5
 
-inherit autotools autotools-utils eutils user systemd
+GENTOO_DEPEND_ON_PERL="yes"
+PYTHON_COMPAT=( python2_7 )
+inherit autotools autotools-utils eutils user systemd perl-module python-single-r1
 
 DESCRIPTION="Apache Traffic Server™ is fast, scalable and extensible caching proxy server"
 HOMEPAGE="http://trafficserver.apache.org"
@@ -15,16 +17,34 @@ SRC_URI="mirror://apache/${PN}/${P}.tar.bz2"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="traffictop debug clang experimental-plugins wccp spdy cppapi aio tinfo example-plugins test-tools +luajit +man geoip"
+IUSE="traffictop debug experimental-plugins wccp aio example-plugins test-tools geoip +perl +eventfd +caps +hwloc memcached imagemagick"
 
-RDEPEND="dev-lang/tcl 
-	traffictop? ( sys-libs/ncurses[tinfo=] )
-	spdy? ( net-misc/spdylay )
-	geoip? ( dev-libs/geoip )"
+RDEPEND="
+	dev-lang/tcl
+	dev-libs/openssl
+	dev-libs/libpcre
+	traffictop? (
+		sys-libs/ncurses[tinfo=]
+		net-misc/curl
+	)
+	geoip? ( dev-libs/geoip )
+	perl? ( 
+		virtual/perl-Carp
+		virtual/perl-IO
+	)
+	caps? ( sys-libs/libcap )
+    hwloc? ( sys-apps/hwloc )
+	wccp? ( >=sys-devel/flex-2.5.33 )
+	memcached? ( dev-libs/libmemcached )
+	imagemagick? ( media-gfx/imagemagick )
+"
 
-DEPEND="${RDEPEND}
-    clang? ( >=sys-devel/clang-3.3 )
-	man? ( dev-python/sphinx )"
+DEPEND="
+	${RDEPEND}
+	${PYTHON_DEPS}
+	dev-python/sphinx[$(python_gen_usedep 'python2*')]
+	perl? ( virtual/perl-ExtUtils-MakeMaker )
+"
 
 group_user_check() {
     einfo "Checking for tc group ..."
@@ -44,22 +64,20 @@ check_32bit() {
 
 pkg_setup() {
     group_user_check || die "Failed to check/add needed user/group"
+    use perl && perl_set_version
+	python-single-r1_pkg_setup
 }
 
 src_prepare() {
-    use traffictop && use tinfo && epatch "${FILESDIR}/00-ncurses.patch"
-#	use cppapi && epatch ${FILESDIR}/20-atscppapi-include-fix.patch
-	use man && epatch ${FILESDIR}/20-man.patch
+#    use traffictop && use tinfo && epatch "${FILESDIR}/00-ncurses.patch"
+
+	# don't build the perl library within the tree
+	epatch ${FILESDIR}/20-perl-build-external.patch
+
     eautoreconf
 }
 
 src_configure() {
-    if use clang ; then
-        CC=clang
-        CXX=clang++
-        tc-export CC CXX
-    fi
-    
     local myeconfargs=(
         --enable-layout=Gentoo
         --sysconfdir=/etc/${PN}
@@ -67,22 +85,33 @@ src_configure() {
         --with-user=tc
         --with-group=tc
         --without-profiler
-        --enable-eventfd
-    	--disable-hwloc
+        $(use_enable eventfd)
+		$(use_enable hwloc)
 	    $(use_with traffictop ncurses)
-		$(use_enable aio linux-native-aio)
-		$(use_enable cppapi)
+		$(use_enable aio experimental-linux-native-aio)
 		$(use_enable debug)
 		$(use_enable example-plugins)
 	    $(use_enable experimental-plugins)
-		$(use_enable luajit)
-		$(use_enable man man-pages)
-		$(use_enable spdy)
 		$(use_enable test-tools)
 		$(use_enable wccp)
+		$(use_enable eventfd)
+		$(use_enable caps posix-cap)
 		$(check_32bit)
 	)
     autotools-utils_src_configure
+}
+
+src_compile() {
+    autotools-utils_src_compile
+	if use perl; then
+	  perl_set_version
+	  cd ${BUILD_DIR}/lib/perl || die
+	  einfo "building perl module in " $(pwd)
+	  make Makefile-pl
+	  perl-module_src_configure
+	  perl-module_src_compile
+	  # remove packlist
+	fi
 }
 
 src_test() {
@@ -99,9 +128,6 @@ src_install() {
 
     keepdir /var/cache/trafficserver
     
-    keepdir /run/trafficserver
-    fowners tc:tc /run/trafficserver
-
     fowners tc:tc /etc/trafficserver
 
     keepdir /etc/trafficserver/snapshots
@@ -111,10 +137,23 @@ src_install() {
     newconfd ${FILESDIR}/tc.confd trafficserver
 
     systemd_dounit ${BUILD_DIR}/rc/trafficserver.service
+	systemd_newtmpfilesd "${FILESDIR}/trafficserver-tempdir.conf" "30-trafficserver.conf"
+
+	if use perl; then
+	  perl_set_version
+	  cd ${BUILD_DIR}/lib/perl || die
+	  myinst="DESTDIR=${D}"
+	  perl-module_src_install
+
+	  # cleanup
+	  # perl_delete_packlist does only remove in vendorarchlib
+	  einfo "removing \"${D}/${ARCH_LIB}\""
+	  rm -rf ${D}/${ARCH_LIB}
+	fi
 }
 
 pkg_postinst() {
     elog "Remeber to update your configuration file."
     elog "A full list of changes could be found on here:"
-    elog "  https://cwiki.apache.org/confluence/display/TS/What%27s+new+in+v6.0.x"
+    elog "  https://cwiki.apache.org/confluence/display/TS/What's+New+in+v7.0.x"
 }
